@@ -167,12 +167,26 @@ class Table {
                         e.value = ''
                     })
                     document.getElementById("artintContextualMenu").outerHTML = '';
-
                 })
                 let deleteColButton = document.createElement('p')
                 deleteColButton.innerText = "Supprimer la colonne"
+                deleteColButton.addEventListener('click', () => {
+                    if (e.target.hasAttribute('header')) {
+                        this.deleteColFrom(Number(e.target.attributes.header.value));
+                    } else {
+                        this.deleteColFrom(Number(e.target.attributes.col.value))
+                    }
+                    document.getElementById("artintContextualMenu").outerHTML = '';
+                })
                 let deleteRowButton = document.createElement('p')
                 deleteRowButton.innerText = "Supprimer la ligne";
+                deleteRowButton.addEventListener('click', () => {
+                    if (e.target.hasAttribute("header")) {
+                        return;
+                    } else {
+                        this.deleteRowFrom(Number(e.target.attributes.row.value))
+                    }
+                })
                 contextMenu.appendChild(addColButton)
                 contextMenu.appendChild(addRowButton)
                 contextMenu.appendChild(emptyColButton)
