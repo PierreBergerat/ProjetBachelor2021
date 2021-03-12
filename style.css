@@ -1,0 +1,100 @@
+:root {
+    --grid-cols: 1;
+    --grid-rows: 1;
+}
+
+.artint-table {
+    overflow: scroll;
+    display: grid;
+    grid-gap: 0;
+    grid-template-rows: repeat(var(--grid-rows), 1fr);
+    grid-template-columns: repeat(var(--grid-cols), 1fr);
+    height: 50vh;
+    max-width: 100%;
+    resize: both;
+}
+
+#buttonContainer {
+    display: flex;
+    justify-content: space-between;
+}
+
+.artint-table:empty {
+    overflow: hidden;
+}
+
+.artint-buttons:not([for='dataEntryTableFileSelector']) {
+    max-width: 20%;
+}
+
+.artint-buttons {
+    flex: 1;
+    margin: 5px 0;
+    display: inline-block;
+    padding: 6px 12px;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.42857143;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    -ms-touch-action: manipulation;
+    touch-action: manipulation;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    background-image: none;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    text-decoration: none;
+    color: #333;
+    background-color: #fff;
+    border-color: #ccc;
+}
+
+.artint-grid-item.header {
+    background-color: #6c757d;
+    color: white;
+    font-weight: bold;
+}
+
+.artint-grid-item.header:focus {
+    box-shadow: inset 0px 0px 10px 1px rgb(150, 150, 150);
+}
+
+.artint-grid-item:focus:not(.header) {
+    box-shadow: inset 0px 0px 10px 1px rgb(151, 208, 247);
+}
+
+.artint-grid-item {
+    padding: 1em;
+    border: 1px solid #ddd;
+    text-align: center;
+    max-width: 150px;
+}
+
+#artintContextualMenu {
+    position: fixed;
+    background: white;
+    color: black;
+    cursor: pointer;
+    border: 1px black solid
+}
+
+#artintContextualMenu>p {
+    padding: 0 1rem;
+    margin: 0;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+#artintContextualMenu>p:hover {
+    background: #6c757d;
+    color: white
+}
