@@ -68,7 +68,7 @@ class Table {
                 let contextMenu = document.createElement("div")
                 contextMenu.id = "artintContextualMenu"
                 contextMenu.style = `top:${e.pageY - 10}px;left:${e.pageX - 40}px`
-                contextMenu.onmouseleave = () => document.getElementById("artintContextualMenu").outerHTML = ''
+                contextMenu.onmouseleave = () => document.getElementById("artintContextualMenu").remove()
                 let addColButton = document.createElement('p');
                 addColButton.innerText = "Ajouter une colonne";
                 let addColButtonBefore = document.createElement('p');
@@ -154,7 +154,7 @@ class Table {
                     Array.from(document.querySelectorAll(`[col="${colNumber}"],[header="${colNumber}"]`)).forEach(e => {
                         e.value = ''
                     })
-                    document.getElementById("artintContextualMenu").outerHTML = '';
+                    document.getElementById("artintContextualMenu").remove();
                 })
                 let emptyRowButton = document.createElement('p')
                 emptyRowButton.innerText = "Effacer la ligne"
@@ -166,7 +166,7 @@ class Table {
                     Array.from(document.querySelectorAll(`[row="${rowNumber}"]`)).forEach(e => {
                         e.value = ''
                     })
-                    document.getElementById("artintContextualMenu").outerHTML = '';
+                    document.getElementById("artintContextualMenu").remove();
                 })
                 let deleteColButton = document.createElement('p')
                 deleteColButton.innerText = "Supprimer la colonne"
@@ -176,7 +176,7 @@ class Table {
                     } else {
                         this.deleteColFrom(Number(e.target.attributes.col.value))
                     }
-                    document.getElementById("artintContextualMenu").outerHTML = '';
+                    document.getElementById("artintContextualMenu").remove();
                 })
                 let deleteRowButton = document.createElement('p')
                 deleteRowButton.innerText = "Supprimer la ligne";
@@ -411,6 +411,18 @@ class Table {
             res[el] = res[el] + 1 || 1;
         })
         return res;
+    }
+
+    getNumberCols = () => {
+        return this.sizeY;
+    }
+
+    getNumberRows = () => {
+        return this.sizeX;
+    }
+
+    getTotalCellsNumber = () =>{
+        return this.sizeX * this.sizeY;
     }
 
 }

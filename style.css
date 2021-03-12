@@ -14,16 +14,11 @@
     resize: both;
 }
 
-#buttonContainer {
-    display: flex;
-    justify-content: space-between;
-}
-
 .artint-table:empty {
     overflow: hidden;
 }
 
-.artint-buttons:not([for='dataEntryTableFileSelector']) {
+.artint-buttons:not([for^='dataEntryTableFileSelector']) {
     max-width: 20%;
 }
 
@@ -62,6 +57,7 @@
 
 .artint-grid-item.header:focus {
     box-shadow: inset 0px 0px 10px 1px rgb(150, 150, 150);
+    overflow: initial;
 }
 
 .artint-grid-item:focus:not(.header) {
@@ -75,7 +71,7 @@
     max-width: 150px;
 }
 
-#artintContextualMenu {
+.artintContextualMenu {
     position: fixed;
     background: white;
     color: black;
@@ -83,7 +79,7 @@
     border: 1px black solid
 }
 
-#artintContextualMenu>p {
+.artintContextualMenu>p {
     padding: 0 1rem;
     margin: 0;
     -webkit-touch-callout: none;
@@ -94,7 +90,12 @@
     user-select: none;
 }
 
-#artintContextualMenu>p:hover {
+.artintContextualMenu>p:hover {
     background: #6c757d;
     color: white
+}
+
+.buttonContainer {
+    display: flex;
+    justify-content: space-between;
 }
