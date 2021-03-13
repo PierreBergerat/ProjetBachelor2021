@@ -3,6 +3,10 @@
     --grid-rows: 1;
 }
 
+.artint-hidden {
+    display: none !important;
+}
+
 .artint-table {
     overflow: scroll;
     display: grid;

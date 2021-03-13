@@ -1,16 +1,19 @@
 class Table {
+    /**
+     * 
+     * @constructor
+     * @param {string} container 
+     */
     constructor(container) {
-        this.data = null;
         this.sizeX = 0;
         this.sizeY = 0;
         let buttonContainer = document.createElement('div');
         buttonContainer.setAttribute('id', 'buttonContainer');
-        //
-        let inputLabel = document.createElement('label');
-        inputLabel.setAttribute('class', 'artint-buttons');
-        inputLabel.setAttribute('for', 'dataEntryTableFileSelector');
-        inputLabel.innerText = 'Charger des données à partir d\'un fichier';
-        document.getElementById(container).appendChild(inputLabel);
+        this.inputLabel = document.createElement('label');
+        this.inputLabel.setAttribute('class', 'artint-buttons');
+        this.inputLabel.setAttribute('for', 'dataEntryTableFileSelector');
+        this.inputLabel.innerText = 'Charger des données à partir d\'un fichier';
+        document.getElementById(container).appendChild(this.inputLabel);
         this.input = document.createElement('input');
         this.input.setAttribute('type', 'file');
         this.input.setAttribute('id', 'dataEntryTableFileSelector');
@@ -18,27 +21,25 @@ class Table {
         this.input.addEventListener("change", (e) => { this.handleFiles(e) }, true);
         this.input.style.display = 'none';
         document.getElementById(container).appendChild(this.input);
-        //
         let addColButton = this.createButton("Ajouter une colonne", () => { this.addColTo(this.sizeY) });
         buttonContainer.appendChild(addColButton);
-        //
         let addRowButton = this.createButton("Ajouter une ligne", () => { this.addRowTo(this.sizeX) });
         buttonContainer.appendChild(addRowButton);
-
-        //
         let deleteColButton = this.createButton("Supprimer une colonne", () => { this.deleteColFrom(this.sizeY) });
         buttonContainer.appendChild(deleteColButton);
-
-        //
         let deleteRowButton = this.createButton("Supprimer une ligne", () => { this.deleteRowFrom(this.sizeX) });
         buttonContainer.appendChild(deleteRowButton);
-
-        //
         this.table = document.getElementById(container).appendChild(buttonContainer)
         this.table = document.getElementById(container).appendChild(document.createElement('div'));
         this.table.classList.add('artint-table');
     }
 
+    /**
+     * 
+     * @param {*} innerTextValue 
+     * @param {*} onClickCb 
+     * @returns 
+     */
     createButton(innerTextValue, onClickCb) {
         let button = document.createElement('span');
         button.setAttribute('class', 'artint-buttons');
@@ -47,6 +48,11 @@ class Table {
         return button
     }
 
+    /**
+     * 
+     * @param {*} rows 
+     * @param {*} cols 
+     */
     makeTable = (rows, cols) => {
         this.table.innerHTML = "";
         this.sizeX = rows;
@@ -199,6 +205,11 @@ class Table {
         };
     }
 
+    /**
+     * 
+     * @param {*} e 
+     * @returns 
+     */
     handleKeys(e) {
         e = e || window.event;
         let sourceX = -1, sourceY = -1;
@@ -265,22 +276,42 @@ class Table {
         }
     }
 
+    /**
+     * 
+     * @param {*} n 
+     */
     addColTo(n) {
         console.log(n);
     }
 
+    /**
+     * 
+     * @param {*} n 
+     */
     addRowTo(n) {
         console.log(n);
     }
 
+    /**
+     * 
+     * @param {*} n 
+     */
     deleteColFrom(n) {
         console.log(n);
     }
 
+    /**
+     * 
+     * @param {*} n 
+     */
     deleteRowFrom(n) {
         console.log(n);
     }
 
+    /**
+     * 
+     * @param {*} data 
+     */
     fillTable = (data) => {
         let rowSize = data[0].length;
         data = data.flat();
@@ -294,6 +325,12 @@ class Table {
     }
 
     CSV = {
+        /**
+         * 
+         * @param {*} csv 
+         * @param {*} reviver 
+         * @returns 
+         */
         parse: function (csv, reviver) {
             reviver = reviver || function (r, c, v) { return v; };
             var chars = csv.split(''), c = 0, cc = chars.length, start, end, table = [], row;
@@ -309,7 +346,7 @@ class Table {
                                     break;
                                 }
                                 else {
-                                    chars[++c] = ''; // unescape ""
+                                    chars[++c] = '';
                                 }
                             }
                             end = ++c;
@@ -341,6 +378,20 @@ class Table {
         }
     };
 
+    XML = {
+        /**
+         * 
+         * @param {*} xml 
+         */
+        parse: function (xml) {
+
+        }
+    }
+
+    /**
+     * 
+     * @param {*} event 
+     */
     handleFiles(event) {
         let fileType = event.target.value.split('.').pop().toLowerCase();
         let reader = new FileReader();
@@ -348,22 +399,25 @@ class Table {
             let text = reader.result;
             switch (fileType) {
                 case 'csv':
-                    this.data = this.CSV.parse(text);
-                    this.makeTable(this.data.length, this.data[0].length);
-                    this.fillTable(this.data);
+                    let data = this.CSV.parse(text);
+                    this.makeTable(data.length, data[0].length);
+                    this.fillTable(data);
                     break;
                 case 'xml':
                     this.parseXML(text);
                     break;
-                case 'tsv':
-                    this.parseTSV(text);
+                default:
                     break;
-                default: break;
             }
         };
         reader.readAsText(event.target.files[0]);
     };
 
+    /**
+     * 
+     * @param {*} col 
+     * @returns 
+     */
     getColValues = (col) => {
         if (typeof (col) === 'string') {
             try {
@@ -373,58 +427,180 @@ class Table {
             }
         }
         if (typeof (col) === 'number') {
-            return Array.from(document.querySelectorAll(`[col="${col}"]`)).map(el => { return isNaN(Number(el.value)) ? el.value : Number(el.value) });
+            return Array.from(document.querySelectorAll(`[col="${col}"]:not(.artint-hidden)`)).map(el => { return isNaN(Number(el.value)) ? el.value : Number(el.value) });
         }
         return null;
     }
 
-    getColSum = (col) => {
-        return this.getColValues(col).reduce((a, b) => a + b, 0);
-    }
-
-    getColAvg = (col) => {
-        let values = this.getColValues(col)
-        return (values.reduce((a, b) => a + b, 0)) / values.length;
-    }
-
-    getColStdDev = (col) => {
-        let values = this.getColValues(col);
-        let mean = values.reduce((a, b) => a + b) / values.length;
-        return Math.sqrt(values.map(x => Math.pow(x - mean, 2)).reduce((a, b) => a + b) / values.length);
-    }
-
-    getColMin = (col) => {
-        return this.getColValues(col).reduce((a, b) => a < b ? a : b);
-    }
-
-    getColMax = (col) => {
-        return this.getColValues(col).reduce((a, b) => a > b ? a : b);
-    }
-
+    /**
+     * 
+     * @param {*} col 
+     * @returns 
+     */
     getColName = (col) => {
         return Array.from(document.getElementsByClassName('header')).filter(el => { return el.attributes.header.value == `${col}` })[0].value;
     }
 
-    getUniqueValues = (col) => {
-        let res = {}
-        this.getColValues(col).forEach(el => {
-            res[el] = res[el] + 1 || 1;
-        })
-        return res;
-    }
-
+    /**
+     * 
+     * @returns 
+     */
     getNumberCols = () => {
         return this.sizeY;
     }
 
+    /**
+     * 
+     * @returns 
+     */
     getNumberRows = () => {
         return this.sizeX;
     }
 
-    getTotalCellsNumber = () =>{
+    /**
+     * 
+     * @returns 
+     */
+    getTotalCellsNumber = () => {
         return this.sizeX * this.sizeY;
     }
 
 }
 
+class Selection {
+    /**
+     * 
+     * @param {*} where 
+     * @returns 
+     */
+    static select(where) {
+        let data = [];
+        if (typeof (where) === 'function') {
+            Array.from(document.getElementsByClassName('artint-grid-item')).forEach(e => { e.classList.remove('artint-selected') })
+            data = Array.from(document.getElementsByClassName('artint-table')[0].children).filter(where).map(e => { return Array.from(document.querySelectorAll(`[row="${e.attributes.row.value}"]`)) }).flat()
+            data.forEach(e => { e.classList.add("artint-selected") })
+            return data
+        } else if (typeof (where) === 'object') {
+            Array.from(document.getElementsByClassName('artint-grid-item')).forEach(e => { e.classList.remove('artint-selected') })
+        }
+    }
+
+    static toMatrix(arr, size) {
+        let res = [];
+        for (var i = 0; i < arr.length; i = i + size)
+            res.push(arr.slice(i, i + size));
+        return res;
+    }
+
+    /**
+     * 
+     */
+    static deselect() {
+        let c = Array.from(document.getElementsByClassName('artint-selected'))
+        if (c.length) {
+            c.forEach(e => { e.classList.remove('artint-selected') })
+        }
+    }
+}
+
+class Utils {
+
+    /**
+     * 
+     * @param {*} arr 
+     * @returns 
+     */
+     static avg = (arr) => {
+        return (arr.reduce((a, b) => a + b, 0)) / arr.length;
+    }
+
+    /**
+     * 
+     * @param {*} arr 
+     * @returns 
+     */
+     static stdDev = (arr) => {
+        let mean = arr.reduce((a, b) => a + b) / arr.length;
+        return Math.sqrt(arr.map(x => Math.pow(x - mean, 2)).reduce((a, b) => a + b) / arr.length);
+    }
+
+    /**
+     * 
+     * @param {*} arr 
+     * @returns 
+     */
+     static uniqueValues = (arr) => {
+        let res = {}
+        arr.forEach(el => {
+            res[el] = res[el] + 1 || 1;
+        })
+        return res;
+    }
+
+    /**
+     * 
+     * @param {*} arr 
+     * @returns 
+     */
+    static sum(arr) {
+        return arr.reduce((a, b) => a + b, 0);
+    }
+
+    /**
+     * 
+     * @param {*} arr 
+     * @returns 
+     */
+    static max(arr) {
+        return arr.reduce((a, b) => a > b ? a : b);
+    }
+
+    /**
+     * 
+     * @param {*} arr 
+     * @returns 
+     */
+    static min(arr) {
+        return arr.reduce((a, b) => a < b ? a : b);
+    }
+}
+
+class Algorithme {
+    /**
+     * 
+     * @param {*} name 
+     */
+    constructor(name) {
+        this.name = name;
+        this.etapes = [];
+        this.table = null;
+    }
+    /**
+     * 
+     * @param {*} container 
+     */
+    createTable(container) {
+        this.table = new Table(container);
+    }
+    /**
+     * 
+     * @param {*} nom 
+     */
+    addEtape(nom) {
+        this.etapes.push(new Etape(nom));
+    }
+}
+
+/**
+ * 
+ */
+class Etape {
+    /**
+     * 
+     * @param {*} nom 
+     */
+    constructor(nom) {
+        this.nom = nom;
+    }
+}
 
