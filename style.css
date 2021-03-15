@@ -22,11 +22,16 @@
     overflow: hidden;
 }
 
+/*
 .artint-buttons:not([for^='dataEntryTableFileSelector']) {
     max-width: 20%;
 }
+*/
 
 .artint-buttons {
+    overflow: hidden;
+    word-wrap: anywhere;
+    text-overflow: ellipsis;
     flex: 1;
     margin: 5px 0;
     display: inline-block;

@@ -473,7 +473,7 @@ class Selection {
      * @param {*} where 
      * @returns 
      */
-    static select(where) {
+    static select(where, shouldFlatten) {
         let data = [];
         if (typeof (where) === 'function') {
             Array.from(document.getElementsByClassName('artint-grid-item')).forEach(e => { e.classList.remove('artint-selected') })
@@ -481,19 +481,24 @@ class Selection {
                 let row = []
                 let curr = e.previousElementSibling
                 while (curr && !curr.hasAttribute('header') && curr.attributes.row.value == e.attributes.row.value) {
+                    curr.classList.add("artint-selected")
                     row.push(curr)
                     curr = curr.previousElementSibling
                 }
                 row.reverse()
+                e.classList.add("artint-selected")
                 row.push(e)
                 curr = e.nextElementSibling
                 while (curr && curr.attributes.row.value == e.attributes.row.value) {
+                    curr.classList.add("artint-selected")
                     row.push(curr)
                     curr = curr.nextElementSibling
                 }
                 return row;
-            }).flat()
-            data.forEach(e => { e.classList.add("artint-selected") })
+            })
+            if (shouldFlatten) {
+                data = data.flat();
+            }
             return data
         } else if (typeof (where) === 'object') {
             Array.from(document.getElementsByClassName('artint-grid-item')).forEach(e => { e.classList.remove('artint-selected') })
@@ -519,6 +524,19 @@ class Selection {
 }
 
 class Utils {
+
+    static rounded = (val, nth) => {
+        if (nth < 0 || typeof (nth) !== 'number') {
+            return val
+        }
+        return Math.floor(val * 10 ** nth) / 10 ** nth
+    }
+
+    static calculateEntropy = (arr, size) => {
+        //- (4/9 * log2(4/9) + 5/9 * log2(5/9)) ≈ 0.991
+        console.log('(-' + arr.length + '/' + size + ') * Math.log2(' + arr.length + '/' + size + ') - (' + (size - arr.length) + '/' + size + ') * Math.log2(' + (size - arr.length) + '/' + size + ') ~= ' + ((-arr.length / size) * Math.log2(arr.length / size) - ((size - arr.length) / size) * Math.log2((size - arr.length) / size)));
+        return (-arr.length / size) * Math.log2(arr.length / size) - ((size - arr.length) / size) * Math.log2((size - arr.length) / size)
+    }
 
     /**
      * 
