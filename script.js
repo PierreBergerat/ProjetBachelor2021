@@ -5,6 +5,7 @@ class Table {
      * @param {string} container 
      */
     constructor(container) {
+        this.loading = false
         this.sizeX = 0;
         this.sizeY = 0;
         let buttonContainer = document.createElement('div');
@@ -73,6 +74,7 @@ class Table {
                 e.preventDefault();
                 let contextMenu = document.createElement("div")
                 contextMenu.id = "artintContextualMenu"
+                contextMenu.classList.add("artintContextualMenu")
                 contextMenu.style = `top:${e.pageY - 10}px;left:${e.pageX - 40}px`
                 contextMenu.onmouseleave = () => document.getElementById("artintContextualMenu").remove()
                 let addColButton = document.createElement('p');
@@ -619,9 +621,16 @@ class Algorithme {
      * 
      * @param {*} nom 
      */
-    addEtape(nom) {
-        this.etapes.push(new Etape(nom));
+    addEtape(nom, description, cb) {
+        this.etapes.push(new Etape(nom, description, cb));
     }
+
+    playEtape() {
+        if (this.etapes.length > 0) {
+            return this.etapes.shift().play()
+        }
+    }
+
 }
 
 /**
@@ -632,7 +641,13 @@ class Etape {
      * 
      * @param {*} nom 
      */
-    constructor(nom) {
+    constructor(nom, description, cb) {
         this.nom = nom;
+        this.description = description;
+        this.cb = cb;
+    }
+
+    play = () => {
+        return this.cb();
     }
 }
