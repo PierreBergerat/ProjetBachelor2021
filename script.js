@@ -477,7 +477,22 @@ class Selection {
         let data = [];
         if (typeof (where) === 'function') {
             Array.from(document.getElementsByClassName('artint-grid-item')).forEach(e => { e.classList.remove('artint-selected') })
-            data = Array.from(document.getElementsByClassName('artint-table')[0].children).filter(where).map(e => { return Array.from(document.querySelectorAll(`[row="${e.attributes.row.value}"]`)) }).flat()
+            data = Array.from(document.getElementsByClassName('artint-table')[0].children).filter(where).map(e => {
+                let row = []
+                let curr = e.previousElementSibling
+                while (curr && !curr.hasAttribute('header') && curr.attributes.row.value == e.attributes.row.value) {
+                    row.push(curr)
+                    curr = curr.previousElementSibling
+                }
+                row.reverse()
+                row.push(e)
+                curr = e.nextElementSibling
+                while (curr && curr.attributes.row.value == e.attributes.row.value) {
+                    row.push(curr)
+                    curr = curr.nextElementSibling
+                }
+                return row;
+            }).flat()
             data.forEach(e => { e.classList.add("artint-selected") })
             return data
         } else if (typeof (where) === 'object') {
@@ -510,7 +525,7 @@ class Utils {
      * @param {*} arr 
      * @returns 
      */
-     static avg = (arr) => {
+    static avg = (arr) => {
         return (arr.reduce((a, b) => a + b, 0)) / arr.length;
     }
 
@@ -519,7 +534,7 @@ class Utils {
      * @param {*} arr 
      * @returns 
      */
-     static stdDev = (arr) => {
+    static stdDev = (arr) => {
         let mean = arr.reduce((a, b) => a + b) / arr.length;
         return Math.sqrt(arr.map(x => Math.pow(x - mean, 2)).reduce((a, b) => a + b) / arr.length);
     }
@@ -529,7 +544,7 @@ class Utils {
      * @param {*} arr 
      * @returns 
      */
-     static uniqueValues = (arr) => {
+    static uniqueValues = (arr) => {
         let res = {}
         arr.forEach(el => {
             res[el] = res[el] + 1 || 1;
@@ -603,4 +618,3 @@ class Etape {
         this.nom = nom;
     }
 }
-

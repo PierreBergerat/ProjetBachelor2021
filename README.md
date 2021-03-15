@@ -8,7 +8,6 @@
   - [3. Arborescence des fichiers](#3-arborescence-des-fichiers)
 
 ## 1. Description du projet
-
 ## 2. API
 ### 2.1 Algorithme
 ### 2.2 Etape
