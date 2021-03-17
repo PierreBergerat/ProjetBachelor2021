@@ -19,7 +19,7 @@
 }
 
 .artint-table:empty {
-    overflow: hidden;
+    display: none;
 }
 
 /*

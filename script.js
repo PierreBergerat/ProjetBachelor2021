@@ -5,9 +5,10 @@ class Table {
      * @param {string} container 
      */
     constructor(container) {
+        this.data = [[]];
         this.loading = false
-        this.sizeX = 0;
-        this.sizeY = 0;
+        this.rows = 0;
+        this.cols = 0;
         let buttonContainer = document.createElement('div');
         buttonContainer.setAttribute('id', 'buttonContainer');
         this.inputLabel = document.createElement('label');
@@ -22,13 +23,13 @@ class Table {
         this.input.addEventListener("change", (e) => { this.handleFiles(e) }, true);
         this.input.style.display = 'none';
         document.getElementById(container).appendChild(this.input);
-        let addColButton = this.createButton("Ajouter une colonne", () => { this.addColTo(this.sizeY) });
+        let addColButton = this.createButton("Ajouter une colonne", () => { this.addColTo(this.cols) });
         buttonContainer.appendChild(addColButton);
-        let addRowButton = this.createButton("Ajouter une ligne", () => { this.addRowTo(this.sizeX) });
+        let addRowButton = this.createButton("Ajouter une ligne", () => { this.addRowTo(this.rows) });
         buttonContainer.appendChild(addRowButton);
-        let deleteColButton = this.createButton("Supprimer une colonne", () => { this.deleteColFrom(this.sizeY) });
+        let deleteColButton = this.createButton("Supprimer une colonne", () => { this.deleteColFrom(this.cols - 1) });
         buttonContainer.appendChild(deleteColButton);
-        let deleteRowButton = this.createButton("Supprimer une ligne", () => { this.deleteRowFrom(this.sizeX) });
+        let deleteRowButton = this.createButton("Supprimer une ligne", () => { this.deleteRowFrom(this.rows - 1) });
         buttonContainer.appendChild(deleteRowButton);
         this.table = document.getElementById(container).appendChild(buttonContainer)
         this.table = document.getElementById(container).appendChild(document.createElement('div'));
@@ -49,6 +50,13 @@ class Table {
         return button
     }
 
+    setSize = (rows, cols) => {
+        this.rows = rows;
+        this.cols = cols;
+        this.table.style.setProperty('--grid-rows', rows);
+        this.table.style.setProperty('--grid-cols', cols);
+    }
+
     /**
      * 
      * @param {*} rows 
@@ -56,10 +64,7 @@ class Table {
      */
     makeTable = (rows, cols) => {
         this.table.innerHTML = "";
-        this.sizeX = rows;
-        this.sizeY = cols;
-        this.table.style.setProperty('--grid-rows', rows);
-        this.table.style.setProperty('--grid-cols', cols);
+        this.setSize(rows, cols)
         for (let c = 0; c < (rows * cols); c++) {
             let cell = document.createElement("input");
             if (c >= cols) {
@@ -68,144 +73,159 @@ class Table {
             } else {
                 cell.setAttribute("header", (c));
             }
-            cell.addEventListener('keydown', this.handleKeys, true);
-            cell.addEventListener('contextmenu', (e) => {
-                e = e || window.event;
-                e.preventDefault();
-                let contextMenu = document.createElement("div")
-                contextMenu.id = "artintContextualMenu"
-                contextMenu.classList.add("artintContextualMenu")
-                contextMenu.style = `top:${e.pageY - 10}px;left:${e.pageX - 40}px`
-                contextMenu.onmouseleave = () => document.getElementById("artintContextualMenu").remove()
-                let addColButton = document.createElement('p');
-                addColButton.innerText = "Ajouter une colonne";
-                let addColButtonBefore = document.createElement('p');
-                addColButtonBefore.id = "addColButtonBefore";
-                addColButtonBefore.classList.add("addColButtonSubMenu")
-                addColButtonBefore.innerText = "Ajouter avant";
-                addColButtonBefore.style.textAlign = "right";
-                addColButtonBefore.addEventListener('click', () => {
-                    if (e.target.hasAttribute('header')) {
-                        this.addColTo(Number(e.target.attributes.header.value));
-                    } else {
-                        this.addColTo(Number(e.target.attributes.col.value));
-                    }
-                })
-                let addColButtonAfter = document.createElement('p');
-                addColButtonAfter.id = "addColButtonAfter"
-                addColButtonAfter.classList.add("addColButtonSubMenu")
-                addColButtonAfter.innerText = "Ajouter après";
-                addColButtonAfter.style.textAlign = "right";
-                addColButtonAfter.addEventListener('click', () => {
-                    if (e.target.hasAttribute('header')) {
-                        this.addColTo(Number(e.target.attributes.header.value) + 1);
-                    } else {
-                        this.addColTo(Number(e.target.attributes.col.value) + 1);
-                    }
-                })
-                addColButton.addEventListener('click', () => {
-                    Array.from(document.getElementsByClassName("addRowButtonSubMenu")).forEach(e => { e.remove() })
-                    let tmp = document.getElementsByClassName("addColButtonSubMenu");
-                    if (tmp.length) {
-                        Array.from(tmp).forEach(e => { e.remove() });
-                    } else {
-                        contextMenu.insertBefore(addColButtonAfter, addColButton.nextSibling);
-                        contextMenu.insertBefore(addColButtonBefore, addColButton.nextSibling);
-                    }
-                })
-
-                let addRowButton = document.createElement('p');
-                addRowButton.innerText = "Ajouter une ligne";
-                let addRowButtonBefore = document.createElement('p');
-                addRowButtonBefore.id = "addRowButtonBefore";
-                addRowButtonBefore.classList.add("addRowButtonSubMenu")
-                addRowButtonBefore.innerText = "Ajouter avant";
-                addRowButtonBefore.style.textAlign = "right";
-                addRowButtonBefore.addEventListener('click', () => {
-                    if (e.target.hasAttribute('header')) {
-                        this.addRowTo(0);
-                    } else {
-                        this.addRowTo(Number(e.target.attributes.row.value))
-                    }
-                })
-                let addRowButtonAfter = document.createElement('p');
-                addRowButtonAfter.id = "addRowButtonAfter"
-                addRowButtonAfter.classList.add("addRowButtonSubMenu")
-                addRowButtonAfter.innerText = "Ajouter après";
-                addRowButtonAfter.style.textAlign = "right";
-                addRowButtonAfter.addEventListener('click', () => {
-                    if (e.target.hasAttribute('header')) {
-                        this.addRowTo(0);
-                    } else {
-                        this.addRowTo(Number(e.target.attributes.row.value) + 1)
-                    }
-                })
-                addRowButton.addEventListener('click', () => {
-                    Array.from(document.getElementsByClassName("addColButtonSubMenu")).forEach(e => { e.remove() })
-                    let tmp = document.getElementsByClassName("addRowButtonSubMenu");
-                    if (tmp.length) {
-                        Array.from(tmp).forEach(e => { e.remove() });
-                    } else {
-                        contextMenu.insertBefore(addRowButtonAfter, addRowButton.nextSibling);
-                        contextMenu.insertBefore(addRowButtonBefore, addRowButton.nextSibling);
-                    }
-                })
-                let emptyColButton = document.createElement('p')
-                emptyColButton.innerText = "Effacer la colonne";
-                emptyColButton.addEventListener('click', () => {
-                    let colNumber = -1;
-                    if (e.target.hasAttribute("header")) {
-                        colNumber = e.target.attributes.header.value
-                    } else {
-                        colNumber = e.target.attributes.col.value
-                    }
-                    Array.from(document.querySelectorAll(`[col="${colNumber}"],[header="${colNumber}"]`)).forEach(e => {
-                        e.value = ''
-                    })
-                    document.getElementById("artintContextualMenu").remove();
-                })
-                let emptyRowButton = document.createElement('p')
-                emptyRowButton.innerText = "Effacer la ligne"
-                emptyRowButton.addEventListener('click', () => {
-                    if (e.target.hasAttribute("header")) {
-                        return;
-                    }
-                    let rowNumber = e.target.attributes.row.value;
-                    Array.from(document.querySelectorAll(`[row="${rowNumber}"]`)).forEach(e => {
-                        e.value = ''
-                    })
-                    document.getElementById("artintContextualMenu").remove();
-                })
-                let deleteColButton = document.createElement('p')
-                deleteColButton.innerText = "Supprimer la colonne"
-                deleteColButton.addEventListener('click', () => {
-                    if (e.target.hasAttribute('header')) {
-                        this.deleteColFrom(Number(e.target.attributes.header.value));
-                    } else {
-                        this.deleteColFrom(Number(e.target.attributes.col.value))
-                    }
-                    document.getElementById("artintContextualMenu").remove();
-                })
-                let deleteRowButton = document.createElement('p')
-                deleteRowButton.innerText = "Supprimer la ligne";
-                deleteRowButton.addEventListener('click', () => {
-                    if (e.target.hasAttribute("header")) {
-                        return;
-                    } else {
-                        this.deleteRowFrom(Number(e.target.attributes.row.value))
-                    }
-                })
-                contextMenu.appendChild(addColButton)
-                contextMenu.appendChild(addRowButton)
-                contextMenu.appendChild(emptyColButton)
-                contextMenu.appendChild(emptyRowButton)
-                contextMenu.appendChild(deleteColButton)
-                contextMenu.appendChild(deleteRowButton)
-                document.body.appendChild(contextMenu)
-            }, true)
             this.table.appendChild(cell).className = "artint-grid-item";
         };
+        this.table.addEventListener('keydown', this.handleKeys, true)
+        this.table.addEventListener('contextmenu', (e) => { this.showContextMenu(e) }, true);
+
     }
+
+    showContextMenu(e) {
+        e = e || window.event;
+        if (e.target.tagName !== 'INPUT') {
+            return;
+        }
+        e.preventDefault();
+        try { document.getElementById("artintContextualMenu").remove(); } catch (err) { }
+        let contextMenu = document.createElement("div")
+        contextMenu.id = "artintContextualMenu"
+        contextMenu.classList.add("artintContextualMenu")
+        contextMenu.style = `top:${e.pageY - 10}px;left:${e.pageX - 40}px`
+        contextMenu.onmouseleave = () => document.getElementById("artintContextualMenu").remove()
+        let addColButton = document.createElement('p');
+        addColButton.innerText = "Ajouter une colonne";
+        let addColButtonBefore = document.createElement('p');
+        addColButtonBefore.id = "addColButtonBefore";
+        addColButtonBefore.classList.add("addColButtonSubMenu")
+        addColButtonBefore.innerText = "Ajouter avant";
+        addColButtonBefore.style.textAlign = "right";
+        addColButtonBefore.addEventListener('click', () => {
+            document.getElementById("artintContextualMenu").remove();
+            if (e.target.hasAttribute('header')) {
+                this.addColTo(Number(e.target.attributes.header.value));
+            } else {
+                this.addColTo(Number(e.target.attributes.col.value));
+            }
+        })
+        let addColButtonAfter = document.createElement('p');
+        addColButtonAfter.id = "addColButtonAfter"
+        addColButtonAfter.classList.add("addColButtonSubMenu")
+        addColButtonAfter.innerText = "Ajouter après";
+        addColButtonAfter.style.textAlign = "right";
+        addColButtonAfter.addEventListener('click', () => {
+            document.getElementById("artintContextualMenu").remove()
+            if (e.target.hasAttribute('header')) {
+                this.addColTo(Number(e.target.attributes.header.value) + 1);
+            } else {
+                this.addColTo(Number(e.target.attributes.col.value) + 1);
+            }
+        })
+        addColButton.addEventListener('click', () => {
+            Array.from(document.getElementsByClassName("addRowButtonSubMenu")).forEach(e => { e.remove() })
+            let tmp = document.getElementsByClassName("addColButtonSubMenu");
+            if (tmp.length) {
+                Array.from(tmp).forEach(e => { e.remove() });
+            } else {
+                contextMenu.insertBefore(addColButtonAfter, addColButton.nextSibling);
+                contextMenu.insertBefore(addColButtonBefore, addColButton.nextSibling);
+            }
+        })
+        let addRowButton = document.createElement('p');
+        addRowButton.innerText = "Ajouter une ligne";
+        let addRowButtonBefore = document.createElement('p');
+        addRowButtonBefore.id = "addRowButtonBefore";
+        addRowButtonBefore.classList.add("addRowButtonSubMenu")
+        addRowButtonBefore.innerText = "Ajouter avant";
+        addRowButtonBefore.style.textAlign = "right";
+        addRowButtonBefore.addEventListener('click', () => {
+            document.getElementById("artintContextualMenu").remove();
+            if (e.target.hasAttribute('header')) {
+                this.addRowTo(1);
+            } else {
+                this.addRowTo(Number(e.target.attributes.row.value) + 1)
+            }
+        })
+        let addRowButtonAfter = document.createElement('p');
+        addRowButtonAfter.id = "addRowButtonAfter"
+        addRowButtonAfter.classList.add("addRowButtonSubMenu")
+        addRowButtonAfter.innerText = "Ajouter après";
+        addRowButtonAfter.style.textAlign = "right";
+        addRowButtonAfter.addEventListener('click', () => {
+            document.getElementById("artintContextualMenu").remove();
+            if (e.target.hasAttribute('header')) {
+                this.addRowTo(1);
+            } else {
+                this.addRowTo(Number(e.target.attributes.row.value) + 2)
+            }
+        })
+        addRowButton.addEventListener('click', () => {
+            Array.from(document.getElementsByClassName("addColButtonSubMenu")).forEach(e => { e.remove() })
+            let tmp = document.getElementsByClassName("addRowButtonSubMenu");
+            if (tmp.length) {
+                Array.from(tmp).forEach(e => { e.remove() });
+            } else {
+                contextMenu.insertBefore(addRowButtonAfter, addRowButton.nextSibling);
+                contextMenu.insertBefore(addRowButtonBefore, addRowButton.nextSibling);
+            }
+        })
+        let emptyColButton = document.createElement('p')
+        emptyColButton.innerText = "Effacer la colonne";
+        emptyColButton.addEventListener('click', () => {
+            document.getElementById("artintContextualMenu").remove();
+            let colNumber = -1;
+            if (e.target.hasAttribute("header")) {
+                colNumber = e.target.attributes.header.value
+            } else {
+                colNumber = e.target.attributes.col.value
+            }
+            let itemIndex = colNumber
+            let elem = this.table.children[itemIndex]
+            while (elem) {
+                elem.value = ''
+                itemIndex = Number(itemIndex) + this.cols
+                elem = this.table.children[itemIndex]
+            }
+        })
+        let emptyRowButton = document.createElement('p')
+        emptyRowButton.innerText = "Effacer la ligne"
+        emptyRowButton.addEventListener('click', () => {
+            document.getElementById("artintContextualMenu").remove();
+            if (e.target.hasAttribute("header")) {
+                return;
+            }
+            for (let i = 0; i < this.cols; i++) {
+                this.table.children[e.target.attributes.row.value * this.cols + this.cols + i].value = ''
+            }
+        })
+        let deleteColButton = document.createElement('p')
+        deleteColButton.innerText = "Supprimer la colonne"
+        deleteColButton.addEventListener('click', () => {
+            document.getElementById("artintContextualMenu").remove();
+            if (e.target.hasAttribute('header')) {
+                this.deleteColFrom(Number(e.target.attributes.header.value));
+            } else {
+                this.deleteColFrom(Number(e.target.attributes.col.value))
+            }
+        })
+        let deleteRowButton = document.createElement('p')
+        deleteRowButton.innerText = "Supprimer la ligne";
+        deleteRowButton.addEventListener('click', () => {
+            document.getElementById("artintContextualMenu").remove();
+            if (e.target.hasAttribute("header")) {
+                return;
+            } else {
+                this.deleteRowFrom(Number(e.target.attributes.row.value) + 1)
+            }
+        })
+        contextMenu.appendChild(addColButton)
+        contextMenu.appendChild(addRowButton)
+        contextMenu.appendChild(emptyColButton)
+        contextMenu.appendChild(emptyRowButton)
+        contextMenu.appendChild(deleteColButton)
+        contextMenu.appendChild(deleteRowButton)
+        document.body.appendChild(contextMenu)
+    }
+
 
     /**
      * 
@@ -214,6 +234,9 @@ class Table {
      */
     handleKeys(e) {
         e = e || window.event;
+        if (e.target.tagName !== 'INPUT') {
+            return;
+        }
         let sourceX = -1, sourceY = -1;
         let target = null;
         if (e.ctrlKey) {
@@ -283,7 +306,11 @@ class Table {
      * @param {*} n 
      */
     addColTo(n) {
-        console.log(n);
+        for (let i = 0; i < this.data.length; i++) {
+            this.data[i].splice(n, 0, '')
+        }
+        this.makeTable(this.data.length, this.data[0].length);
+        this.fillTable(this.data);
     }
 
     /**
@@ -291,7 +318,9 @@ class Table {
      * @param {*} n 
      */
     addRowTo(n) {
-        console.log(n);
+        this.data.splice(n, 0, Array(this.data[0].length).fill(''))
+        this.makeTable(this.data.length, this.data[0].length);
+        this.fillTable(this.data);
     }
 
     /**
@@ -299,7 +328,14 @@ class Table {
      * @param {*} n 
      */
     deleteColFrom(n) {
-        console.log(n);
+        if (this.data === [] || this.data === [[]]) {
+            return
+        }
+        for (let i = 0; i < this.data.length; i++) {
+            this.data[i].splice(n, 1)
+        }
+        this.makeTable(this.data.length, this.data[0].length);
+        this.fillTable(this.data);
     }
 
     /**
@@ -307,7 +343,12 @@ class Table {
      * @param {*} n 
      */
     deleteRowFrom(n) {
-        console.log(n);
+        if (this.data === [] || this.data === [[]]) {
+            return
+        }
+        this.data.splice(n, 1)
+        this.makeTable(this.data.length, this.data[0].length);
+        this.fillTable(this.data);
     }
 
     /**
@@ -401,9 +442,9 @@ class Table {
             let text = reader.result;
             switch (fileType) {
                 case 'csv':
-                    let data = this.CSV.parse(text);
-                    this.makeTable(data.length, data[0].length);
-                    this.fillTable(data);
+                    this.data = this.CSV.parse(text);
+                    this.makeTable(this.data.length, this.data[0].length);
+                    this.fillTable(this.data);
                     break;
                 case 'xml':
                     this.parseXML(text);
@@ -429,7 +470,7 @@ class Table {
             }
         }
         if (typeof (col) === 'number') {
-            return Array.from(document.querySelectorAll(`[col="${col}"]:not(.artint-hidden)`)).map(el => { return isNaN(Number(el.value)) ? el.value : Number(el.value) });
+            return Array.from(document.querySelectorAll(`[col="${col}"]`)).map(el => { return isNaN(Number(el.value)) ? el.value : Number(el.value) });
         }
         return null;
     }
@@ -448,7 +489,7 @@ class Table {
      * @returns 
      */
     getNumberCols = () => {
-        return this.sizeY;
+        return this.cols;
     }
 
     /**
@@ -456,7 +497,7 @@ class Table {
      * @returns 
      */
     getNumberRows = () => {
-        return this.sizeX;
+        return this.rows;
     }
 
     /**
@@ -464,7 +505,7 @@ class Table {
      * @returns 
      */
     getTotalCellsNumber = () => {
-        return this.sizeX * this.sizeY;
+        return this.rows * this.cols;
     }
 
 }
