@@ -13,7 +13,7 @@
     grid-gap: 0;
     grid-template-rows: repeat(var(--grid-rows), 1fr);
     grid-template-columns: repeat(var(--grid-cols), 1fr);
-    height: 50vh;
+    max-height: 80vh;
     max-width: 100%;
     resize: both;
 }
@@ -74,10 +74,14 @@
 }
 
 .artint-grid-item {
-    padding: 1em;
+    padding: 10px;
     border: 1px solid #ddd;
     text-align: center;
     max-width: 150px;
+}
+
+.artint-auto-size {
+    max-width: none !important;
 }
 
 .artintContextualMenu {

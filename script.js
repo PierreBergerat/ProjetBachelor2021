@@ -73,11 +73,24 @@ class Table {
             } else {
                 cell.setAttribute("header", (c));
             }
-            this.table.appendChild(cell).className = "artint-grid-item";
+            this.table.appendChild(cell).className = "artint-grid-item"
         };
         this.table.addEventListener('keydown', this.handleKeys, true)
         this.table.addEventListener('contextmenu', (e) => { this.showContextMenu(e) }, true);
+        this.table.addEventListener('input', (e) => { this.logChangesIntoData(e) }, true);
 
+    }
+
+    logChangesIntoData(e) {
+        e = e || window.event;
+        if (e.target.tagName !== 'INPUT') {
+            return;
+        }
+        if (e.target.hasAttribute('header')) {
+            this.data[0][Number(e.target.attributes.header.value)] = e.target.value
+        } else {
+            this.data[Number(e.target.attributes.row.value) + 1][Number(e.target.attributes.col.value)] = e.target.value
+        }
     }
 
     showContextMenu(e) {
@@ -179,6 +192,7 @@ class Table {
                 colNumber = e.target.attributes.col.value
             }
             let itemIndex = colNumber
+            this.data.forEach(ligne => { ligne[colNumber] = '' })
             let elem = this.table.children[itemIndex]
             while (elem) {
                 elem.value = ''
@@ -194,6 +208,7 @@ class Table {
                 return;
             }
             for (let i = 0; i < this.cols; i++) {
+                this.data[Number(e.target.attributes.row.value)][i] = ''
                 this.table.children[e.target.attributes.row.value * this.cols + this.cols + i].value = ''
             }
         })
@@ -318,6 +333,9 @@ class Table {
      * @param {*} n 
      */
     addRowTo(n) {
+        if (this.data.length && !this.data[0].length) {
+            return;
+        }
         this.data.splice(n, 0, Array(this.data[0].length).fill(''))
         this.makeTable(this.data.length, this.data[0].length);
         this.fillTable(this.data);
@@ -328,7 +346,7 @@ class Table {
      * @param {*} n 
      */
     deleteColFrom(n) {
-        if (this.data === [] || this.data === [[]]) {
+        if (this.data.length && !this.data[0].length) {
             return
         }
         for (let i = 0; i < this.data.length; i++) {
@@ -343,10 +361,10 @@ class Table {
      * @param {*} n 
      */
     deleteRowFrom(n) {
-        if (this.data === [] || this.data === [[]]) {
-            return
+        if (this.data.length <= 1 || !this.data[0].length) {
+            return;
         }
-        this.data.splice(n, 1)
+        this.data.splice(n, 1);
         this.makeTable(this.data.length, this.data[0].length);
         this.fillTable(this.data);
     }
@@ -461,16 +479,18 @@ class Table {
      * @param {*} col 
      * @returns 
      */
-    getColValues = (col) => {
+    getColValues = (col, shouldIncludeHeaders = true) => {
         if (typeof (col) === 'string') {
-            try {
-                col = Number(Array.from(document.getElementsByClassName('header')).filter(el => { return el.value == `${col}` })[0].attributes.header.value);
-            } catch (err) {
-                return null;
+            if (shouldIncludeHeaders) {
+                return this.filterData((element, x, y) => { return x == this.data[0].indexOf(col) })
             }
+            return this.filterData((element, x, y) => { return y != 0 && x == this.data[0].indexOf(col) })
         }
         if (typeof (col) === 'number') {
-            return Array.from(document.querySelectorAll(`[col="${col}"]`)).map(el => { return isNaN(Number(el.value)) ? el.value : Number(el.value) });
+            if (shouldIncludeHeaders) {
+                return this.filterData((element, x, y) => { return x == col })
+            }
+            return this.filterData((element, x, y) => { return y != 0 && x == col })
         }
         return null;
     }
@@ -481,7 +501,11 @@ class Table {
      * @returns 
      */
     getColName = (col) => {
-        return Array.from(document.getElementsByClassName('header')).filter(el => { return el.attributes.header.value == `${col}` })[0].value;
+        return this.data[0][col]
+    }
+
+    getColByName = (colName) => {
+        return this.data[0].indexOf(colName)
     }
 
     /**
@@ -508,61 +532,21 @@ class Table {
         return this.rows * this.cols;
     }
 
-}
-
-class Selection {
     /**
      * 
      * @param {*} where 
      * @returns 
      */
-    static select(where, shouldFlatten) {
-        let data = [];
-        if (typeof (where) === 'function') {
-            Array.from(document.getElementsByClassName('artint-grid-item')).forEach(e => { e.classList.remove('artint-selected') })
-            data = Array.from(document.getElementsByClassName('artint-table')[0].children).filter(where).map(e => {
-                let row = []
-                let curr = e.previousElementSibling
-                while (curr && !curr.hasAttribute('header') && curr.attributes.row.value == e.attributes.row.value) {
-                    curr.classList.add("artint-selected")
-                    row.push(curr)
-                    curr = curr.previousElementSibling
+    filterData = (where) => {
+        let res = []
+        for (let y = 0; y < this.data.length; y++) {
+            for (let x = 0; x < this.data[y].length; x++) {
+                if (where(this.data[y][x], x, y)) {
+                    res.push({ x: x, y: y, value: this.data[y][x] })
                 }
-                row.reverse()
-                e.classList.add("artint-selected")
-                row.push(e)
-                curr = e.nextElementSibling
-                while (curr && curr.attributes.row.value == e.attributes.row.value) {
-                    curr.classList.add("artint-selected")
-                    row.push(curr)
-                    curr = curr.nextElementSibling
-                }
-                return row;
-            })
-            if (shouldFlatten) {
-                data = data.flat();
             }
-            return data
-        } else if (typeof (where) === 'object') {
-            Array.from(document.getElementsByClassName('artint-grid-item')).forEach(e => { e.classList.remove('artint-selected') })
         }
-    }
-
-    static toMatrix(arr, size) {
-        let res = [];
-        for (var i = 0; i < arr.length; i = i + size)
-            res.push(arr.slice(i, i + size));
-        return res;
-    }
-
-    /**
-     * 
-     */
-    static deselect() {
-        let c = Array.from(document.getElementsByClassName('artint-selected'))
-        if (c.length) {
-            c.forEach(e => { e.classList.remove('artint-selected') })
-        }
+        return res
     }
 }
 
