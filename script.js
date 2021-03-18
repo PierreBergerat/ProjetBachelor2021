@@ -78,7 +78,6 @@ class Table {
         this.table.addEventListener('keydown', this.handleKeys, true)
         this.table.addEventListener('contextmenu', (e) => { this.showContextMenu(e) }, true);
         this.table.addEventListener('input', (e) => { this.logChangesIntoData(e) }, true);
-
     }
 
     logChangesIntoData(e) {

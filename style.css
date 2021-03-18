@@ -22,12 +22,6 @@
     display: none;
 }
 
-/*
-.artint-buttons:not([for^='dataEntryTableFileSelector']) {
-    max-width: 20%;
-}
-*/
-
 .artint-buttons {
     overflow: hidden;
     word-wrap: anywhere;
@@ -111,24 +105,4 @@
 .buttonContainer {
     display: flex;
     justify-content: space-between;
-}
-
-.artint-loading-screen {
-    background-color: rgba(173, 12, 12, 0.514);
-    position: absolute;
-    width: 100%;
-    height: 100vh;
-    z-index: 1;
-    padding: 0;
-    margin: 0;
-    left: 0;
-    top: 0;
-}
-
-.artint-loading-wheel {
-    z-index: 2;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
 }
