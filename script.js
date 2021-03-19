@@ -538,13 +538,7 @@ class Table {
      */
     filterData = (where) => {
         let res = []
-        for (let y = 0; y < this.data.length; y++) {
-            for (let x = 0; x < this.data[y].length; x++) {
-                if (where(this.data[y][x], x, y)) {
-                    res.push({ x: x, y: y, value: this.data[y][x] })
-                }
-            }
-        }
+        this.data.forEach((row, indexRow) => { row.forEach((_, indexCol) => { if (where(this.data[indexRow][indexCol], indexCol, indexRow)) { res.push({ x: indexCol, y: indexRow, value: this.data[indexRow][indexCol] }) } }) })
         return res
     }
 }
@@ -624,16 +618,17 @@ class Utils {
     }
 }
 
-class Algorithme {
+class Algorithm {
     /**
      * 
      * @param {*} name 
      */
     constructor(name) {
         this.name = name;
-        this.etapes = [];
+        this.tasks = [];
         this.table = null;
     }
+
     /**
      * 
      * @param {*} container 
@@ -641,17 +636,23 @@ class Algorithme {
     createTable(container) {
         this.table = new Table(container);
     }
+
     /**
      * 
      * @param {*} nom 
      */
-    addEtape(nom, description, cb) {
-        this.etapes.push(new Etape(nom, description, cb));
+    addTask(task) {
+        this.tasks.push(task);
     }
 
-    playEtape() {
-        if (this.etapes.length > 0) {
-            return this.etapes.shift().play()
+    /**
+     * 
+     * @returns 
+     */
+    playNextTask() {
+        if (this.tasks.length > 0) {
+            let task = this.tasks.shift()
+            return task.play(task.actions)
         }
     }
 
@@ -660,18 +661,32 @@ class Algorithme {
 /**
  * 
  */
-class Etape {
+class Task {
     /**
      * 
-     * @param {*} nom 
+     * @param {*} name 
      */
-    constructor(nom, description, cb) {
-        this.nom = nom;
+    constructor(name, description, actions) {
+        this.name = name;
         this.description = description;
-        this.cb = cb;
+        if (!actions) {
+            throw new Error('\"actions\" parameter is mandatory in \"Task\" constructor')
+        }
+        if (actions.constructor === Array) {
+            this.actions = actions
+        } else if (actions instanceof Function) {
+            this.actions = [actions]
+        } else {
+            throw new Error('\"actions\" parameter should be of type Array[Function] or Function, here : ' + actions.constructor.name)
+        }
+        this.returnedValues = []
     }
 
-    play = () => {
-        return this.cb();
+    play = (funcArr, param = null) => {
+        if (!funcArr.length) {
+            return param
+        }
+        let func = funcArr.shift()
+        return this.play(funcArr, func(param))
     }
 }
