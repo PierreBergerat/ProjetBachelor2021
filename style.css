@@ -3,6 +3,10 @@
     --grid-rows: 1;
 }
 
+.artint-selected {
+    box-shadow: inset 0px 0px 10px 1px green;
+}
+
 .artint-hidden {
     display: none !important;
 }

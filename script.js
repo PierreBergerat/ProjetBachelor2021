@@ -544,6 +544,23 @@ class Table {
         return this.rows * this.cols;
     }
 
+    deselectAll = () => {
+        this.selected.forEach(cell => { this.table.children[cell.y * algo.table.cols + cell.x].classList.remove("artint-selected") });
+        this.selected = []
+    }
+
+    selectWhere = (cellArr, color = 'green', shouldDeselect = true) => {
+        if (this.selected && shouldDeselect) {
+            this.selected.forEach(cell => { this.table.children[cell.y * algo.table.cols + cell.x].classList.remove("artint-selected") });
+            this.selected.length = 0;
+        }
+        cellArr.forEach(cell => { this.table.children[cell.y * algo.table.cols + cell.x].style.boxShadow = `inset 0px 0px 10px 1px ${color}`; });
+        if (this.selected) {
+            this.selected = [...this.selected, ...cellArr]
+        }
+        else { this.selected = cellArr }
+    }
+
     /**
      * 
      * @param {*} where 
