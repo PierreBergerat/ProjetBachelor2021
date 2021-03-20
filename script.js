@@ -5,6 +5,7 @@ class Table {
      * @param {string} container 
      */
     constructor(container) {
+        this.sortBy = -1;
         this.data = [[]];
         this.loading = false
         this.rows = 0;
@@ -98,6 +99,18 @@ class Table {
             return;
         }
         e.preventDefault();
+        if (e.target.hasAttribute('header')) {
+            let col = e.target.attributes.header.value
+            if (this.sortBy == col) {
+                this.data = [this.data[0]].concat(this.data.filter((c, r) => { return r != 0 }).sort((a, b) => { return a[col] < b[col] }));
+                this.sortBy = -1;
+            } else {
+                this.data = [this.data[0]].concat(this.data.filter((c, r) => { return r != 0 }).sort((a, b) => { return a[col] > b[col] }));
+                this.sortBy = col;
+            }
+            this.fillTable(this.data);
+            return
+        }
         try { document.getElementById("artintContextualMenu").remove(); } catch (err) { }
         let contextMenu = document.createElement("div")
         contextMenu.id = "artintContextualMenu"
@@ -553,7 +566,6 @@ class Utils {
     }
 
     static calculateEntropy = (arr, size) => {
-        //- (4/9 * log2(4/9) + 5/9 * log2(5/9)) ≈ 0.991
         console.log('(-' + arr.length + '/' + size + ') * Math.log2(' + arr.length + '/' + size + ') - (' + (size - arr.length) + '/' + size + ') * Math.log2(' + (size - arr.length) + '/' + size + ') ~= ' + ((-arr.length / size) * Math.log2(arr.length / size) - ((size - arr.length) / size) * Math.log2((size - arr.length) / size)));
         return (-arr.length / size) * Math.log2(arr.length / size) - ((size - arr.length) / size) * Math.log2((size - arr.length) / size)
     }
@@ -633,7 +645,7 @@ class Algorithm {
      * 
      * @param {*} container 
      */
-    createTable(container) {
+    createTable = (container) => {
         this.table = new Table(container);
     }
 
@@ -641,7 +653,7 @@ class Algorithm {
      * 
      * @param {*} nom 
      */
-    addTask(task) {
+    addTask = (task) => {
         this.tasks.push(task);
     }
 
@@ -649,11 +661,20 @@ class Algorithm {
      * 
      * @returns 
      */
-    playNextTask() {
+    playNextTask = () => {
         if (this.tasks.length > 0) {
             let task = this.tasks.shift()
             return task.play(task.actions)
         }
+    }
+
+    display = (msg, lvl = 1) => {
+        lvl = lvl <= 0 ? 1 : lvl + 1;
+        let tab = ''
+        for (let i = 0; i < lvl; i++) {
+            tab += '\t'
+        }
+        console.log(tab + msg);
     }
 
 }
