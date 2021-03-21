@@ -583,8 +583,15 @@ class Utils {
     }
 
     static calculateEntropy = (arr, size) => {
-        console.log('(-' + arr.length + '/' + size + ') * Math.log2(' + arr.length + '/' + size + ') - (' + (size - arr.length) + '/' + size + ') * Math.log2(' + (size - arr.length) + '/' + size + ') ~= ' + ((-arr.length / size) * Math.log2(arr.length / size) - ((size - arr.length) / size) * Math.log2((size - arr.length) / size)));
-        return (-arr.length / size) * Math.log2(arr.length / size) - ((size - arr.length) / size) * Math.log2((size - arr.length) / size)
+        if (arr.constructor === Array) {
+            console.log('(-' + arr.length + '/' + size + ') * Math.log2(' + arr.length + '/' + size + ') - (' + (size - arr.length) + '/' + size + ') * Math.log2(' + (size - arr.length) + '/' + size + ') ~= ' + ((-arr.length / size) * Math.log2(arr.length / size) - ((size - arr.length) / size) * Math.log2((size - arr.length) / size)));
+            return (-arr.length / size) * Math.log2(arr.length / size) - ((size - arr.length) / size) * Math.log2((size - arr.length) / size)
+        } else {
+            if (typeof (arr) === 'number') {
+                console.log('(-' + arr + '/' + size + ') * Math.log2(' + arr + '/' + size + ') - (' + (size - arr) + '/' + size + ') * Math.log2(' + (size - arr) + '/' + size + ') ~= ' + ((-arr / size) * Math.log2(arr / size) - ((size - arr) / size) * Math.log2((size - arr) / size)));
+                return (-arr / size) * Math.log2(arr / size) - ((size - arr) / size) * Math.log2((size - arr) / size)
+            }
+        }
     }
 
     /**
@@ -656,6 +663,10 @@ class Algorithm {
         this.name = name;
         this.tasks = [];
         this.table = null;
+        this.currentTask = 0;
+        this.currentAction = 0;
+        this.currentValues = {}
+        this.backupValues = []
     }
 
     /**
@@ -672,6 +683,57 @@ class Algorithm {
      */
     addTask = (task) => {
         this.tasks.push(task);
+    }
+
+
+    next = () => {
+        if (this.tasks[this.currentTask] === undefined) {
+            return null
+        }
+        console.log(this.currentAction);
+        if (!this.tasks[this.currentTask].actions[this.currentAction]) {
+            this.currentTask++;
+            if (this.currentTask >= this.tasks.length) {
+                this.currentTask--;
+                this.currentAction = this.tasks[this.currentTask].actions.length - 1
+                return;
+            }
+            this.currentAction = 0;
+        }
+        this.currentValues = { ...this.currentValues, ...(this.tasks[this.currentTask].actions[this.currentAction](this.currentValues)) };
+        this.backupValues.push(this.currentValues);
+        this.currentAction++;
+    }
+
+    previous = () => {
+        if (this.currentTask == 0 && this.currentAction == 0) {
+            return
+        }
+        if (this.currentAction == 0) {
+            this.currentTask--;
+            if (this.currentTask < 0) {
+                this.currentTask = 0;
+                return;
+            }
+            this.currentAction = this.tasks[this.currentTask].actions.length - 1;
+            console.log("Boop", this.currentAction);
+        } else {
+            if (this.currentAction - 2 < 0) {
+                if (this.currentTask != 0) {
+                    this.currentTask--;
+                    this.currentAction = this.tasks[this.currentTask].actions.length - 1;
+                } else {
+                    this.currentAction = 0;
+                    this.currentTask = 0
+                }
+            } else {
+                this.currentAction -= 2;
+            }
+        }
+        this.backupValues.pop();
+        this.currentValues = this.backupValues.pop()
+        console.log(this.currentAction, this.currentTask);
+        this.next()
     }
 
     /**
