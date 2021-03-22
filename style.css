@@ -110,3 +110,19 @@
     display: flex;
     justify-content: space-between;
 }
+
+.artint-title, .artint-subtitle, .artint-description {
+    display: inline;
+}
+
+.artint-title {
+    font-size: large;
+}
+
+.artint-subtitle {
+    font-size: medium;
+}
+
+.artint-description {
+
+}

@@ -20,7 +20,7 @@ class Table {
         this.input = document.createElement('input');
         this.input.setAttribute('type', 'file');
         this.input.setAttribute('id', 'dataEntryTableFileSelector');
-        this.input.setAttribute('accept', '.csv, .xml, .tsv');
+        this.input.setAttribute('accept', '.csv');
         this.input.addEventListener("change", (e) => { this.handleFiles(e) }, true);
         this.input.style.display = 'none';
         document.getElementById(container).appendChild(this.input);
@@ -37,12 +37,6 @@ class Table {
         this.table.classList.add('artint-table');
     }
 
-    /**
-     * 
-     * @param {*} innerTextValue 
-     * @param {*} onClickCb 
-     * @returns 
-     */
     createButton(innerTextValue, onClickCb) {
         let button = document.createElement('span');
         button.setAttribute('class', 'artint-buttons');
@@ -79,6 +73,7 @@ class Table {
         this.table.addEventListener('keydown', this.handleKeys, true)
         this.table.addEventListener('contextmenu', (e) => { this.showContextMenu(e) }, true);
         this.table.addEventListener('input', (e) => { this.logChangesIntoData(e) }, true);
+        run();
     }
 
     logChangesIntoData(e) {
@@ -388,7 +383,7 @@ class Table {
     fillTable = (data) => {
         let rowSize = data[0].length;
         data = data.flat();
-        let cells = Array.from(document.getElementsByClassName("artint-grid-item"));
+        let cells = this.table.children;
         for (let i = 0; i < cells.length; i++) {
             if (i < rowSize) {
                 cells[i].classList.add('header');
@@ -401,65 +396,55 @@ class Table {
         /**
          * 
          * @param {*} csv 
-         * @param {*} reviver 
+         * @param {*} filter 
          * @returns 
          */
-        parse: function (csv, reviver) {
-            reviver = reviver || function (r, c, v) { return v; };
-            var chars = csv.split(''), c = 0, cc = chars.length, start, end, table = [], row;
-            while (c < cc) {
+        parse: function (csv, filter) {
+            filter = filter || function (r, c, v) { return v; };
+            var chars = csv.split(''), currChar = 0, nbChars = chars.length, start, end, table = [], row;
+            while (currChar < nbChars) {
                 table.push(row = []);
-                while (c < cc && '\r' !== chars[c] && '\n' !== chars[c]) {
-                    start = end = c;
-                    if ('"' === chars[c]) {
-                        start = end = ++c;
-                        while (c < cc) {
-                            if ('"' === chars[c]) {
-                                if ('"' !== chars[c + 1]) {
+                while (currChar < nbChars && '\r' !== chars[currChar] && '\n' !== chars[currChar]) {
+                    start = end = currChar;
+                    if ('"' === chars[currChar]) {
+                        start = end = ++currChar;
+                        while (currChar < nbChars) {
+                            if ('"' === chars[currChar]) {
+                                if ('"' !== chars[currChar + 1]) {
                                     break;
                                 }
                                 else {
-                                    chars[++c] = '';
+                                    chars[++currChar] = '';
                                 }
                             }
-                            end = ++c;
+                            end = ++currChar;
                         }
-                        if ('"' === chars[c]) {
-                            ++c;
+                        if ('"' === chars[currChar]) {
+                            ++currChar;
                         }
-                        while (c < cc && '\r' !== chars[c] && '\n' !== chars[c] && ',' !== chars[c]) {
-                            ++c;
+                        while (currChar < nbChars && '\r' !== chars[currChar] && '\n' !== chars[currChar] && ',' !== chars[currChar]) {
+                            ++currChar;
                         }
                     } else {
-                        while (c < cc && '\r' !== chars[c] && '\n' !== chars[c] && ',' !== chars[c]) {
-                            end = ++c;
+                        while (currChar < nbChars && '\r' !== chars[currChar] && '\n' !== chars[currChar] && ',' !== chars[currChar]) {
+                            end = ++currChar;
                         }
                     }
-                    row.push(reviver(table.length - 1, row.length, chars.slice(start, end).join('')));
-                    if (',' === chars[c]) {
-                        ++c;
+                    row.push(filter(table.length - 1, row.length, chars.slice(start, end).join('')));
+                    if (',' === chars[currChar]) {
+                        ++currChar;
                     }
                 }
-                if ('\r' === chars[c]) {
-                    ++c;
+                if ('\r' === chars[currChar]) {
+                    ++currChar;
                 }
-                if ('\n' === chars[c]) {
-                    ++c;
+                if ('\n' === chars[currChar]) {
+                    ++currChar;
                 }
             }
             return table;
         }
     };
-
-    XML = {
-        /**
-         * 
-         * @param {*} xml 
-         */
-        parse: function (xml) {
-
-        }
-    }
 
     /**
      * 
@@ -476,10 +461,8 @@ class Table {
                     this.makeTable(this.data.length, this.data[0].length);
                     this.fillTable(this.data);
                     break;
-                case 'xml':
-                    this.parseXML(text);
-                    break;
                 default:
+                    alert('L\'extension de fichier n\'est pas valable. Veuillez n\'utiliser que des fichiers CSV.')
                     break;
             }
         };
@@ -626,6 +609,10 @@ class Utils {
         return res;
     }
 
+    static mean(arr) {
+        return arr.reduce((a, b) => a + b) / arr.length;
+    }
+
     /**
      * 
      * @param {*} arr 
@@ -666,7 +653,8 @@ class Algorithm {
         this.currentTask = 0;
         this.currentAction = 0;
         this.currentValues = {}
-        this.backupValues = []
+        this.backupValues = [];
+        this.explications = null;
     }
 
     /**
@@ -675,6 +663,21 @@ class Algorithm {
      */
     createTable = (container) => {
         this.table = new Table(container);
+    }
+
+    createExplications = (container) => {
+        this.explications = document.getElementById(container);
+        this.previousButton = this.createButton("Reculer d'une étape", () => { this.previous() });
+        this.nextButton = this.createButton("Avancer d'une étape", () => { this.next() });
+        this.explications.appendChild(this.previousButton);
+        this.explications.appendChild(this.nextButton);
+    }
+
+    addCard = (task) => {
+        console.log(task);
+        let card = document.createElement('div');
+        card.innerHTML = `<details><summary><p class=\"artint-title\">${task.name}</p class=\"artint-subtitle\"></summary><p class=\"artint-description\">${task.description}</p><p></p></details>`;
+        this.explications.appendChild(card)
     }
 
     /**
@@ -687,36 +690,41 @@ class Algorithm {
 
 
     next = () => {
-        if (this.tasks[this.currentTask] === undefined) {
-            return null
+        if (this.currentAction == 0) {
+            this.addCard(this.tasks[this.currentTask]);
         }
-        console.log(this.currentAction);
+        if (this.tasks[this.currentTask] === undefined) {
+            return false
+        }
         if (!this.tasks[this.currentTask].actions[this.currentAction]) {
-            this.currentTask++;
-            if (this.currentTask >= this.tasks.length) {
-                this.currentTask--;
-                this.currentAction = this.tasks[this.currentTask].actions.length - 1
-                return;
+            if (this.currentTask + 1 < this.tasks.length) {
+                this.currentTask++;
+                this.currentAction = 0;
+            } else {
+                return false
             }
-            this.currentAction = 0;
         }
         this.currentValues = { ...this.currentValues, ...(this.tasks[this.currentTask].actions[this.currentAction](this.currentValues)) };
         this.backupValues.push(this.currentValues);
-        this.currentAction++;
+        console.log(this.currentAction);
+        if (this.currentAction <= this.tasks[this.currentTask].actions.length - 1 && this.currentTask <= this.tasks[this.tasks.length - 1].actions.length - 1) {
+            this.currentAction++;
+            return true
+        }
+        return false
     }
 
     previous = () => {
         if (this.currentTask == 0 && this.currentAction == 0) {
-            return
+            return false
         }
         if (this.currentAction == 0) {
             this.currentTask--;
             if (this.currentTask < 0) {
                 this.currentTask = 0;
-                return;
+                return false;
             }
             this.currentAction = this.tasks[this.currentTask].actions.length - 1;
-            console.log("Boop", this.currentAction);
         } else {
             if (this.currentAction - 2 < 0) {
                 if (this.currentTask != 0) {
@@ -732,20 +740,36 @@ class Algorithm {
         }
         this.backupValues.pop();
         this.currentValues = this.backupValues.pop()
-        console.log(this.currentAction, this.currentTask);
-        this.next()
+        return this.next()
+    }
+
+    nextTask = () => {
+        if (this.currentTask + 1 > this.tasks.length) {
+            return;
+        }
+        for (let action = this.currentAction; action <= this.tasks[this.currentTask].actions.length; action++) {
+            this.next();
+        }
+    }
+
+    createButton(innerTextValue, onClickCb) {
+        let button = document.createElement('span');
+        button.setAttribute('class', 'artint-buttons');
+        button.innerText = innerTextValue;
+        button.addEventListener('click', onClickCb);
+        return button
     }
 
     /**
      * 
      * @returns 
      */
-    playNextTask = () => {
+    /*playNextTask = () => {
         if (this.tasks.length > 0) {
             let task = this.tasks.shift()
             return task.play(task.actions)
         }
-    }
+    }*/
 
     display = (msg, lvl = 1) => {
         lvl = lvl <= 0 ? 1 : lvl + 1;
@@ -782,11 +806,11 @@ class Task {
         this.returnedValues = []
     }
 
-    play = (funcArr, param = null) => {
+    /*play = (funcArr, param = null) => {
         if (!funcArr.length) {
             return param
         }
         let func = funcArr.shift()
         return this.play(funcArr, func(param))
-    }
+    }*/
 }

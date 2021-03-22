@@ -1,6 +1,7 @@
 // Exemple d'utilisation du framework
 let algo = new Algorithm("Decision_Tree");
 algo.createTable('container'); //vecteur de propriétés
+algo.createExplications('explications')
 const run = () => {
     algo.addTask(new Task('Calculer l\'entropie de la colonne d\'observation',
         'On va utiliser la formule vue en cours pour calculer l\'entropie',
@@ -39,7 +40,12 @@ const run = () => {
     algo.addTask(new Task('Task2', 'Task2Description', [
         (values) => {
             algo.display(values.labels)
-            algo.display("Slt c bayar");
+            algo.display("Task2Part1");
+            return { task2: 'task2Part1' }
+        },
+        (values) => {
+            return { task2: 'task2Part2' }
         }
+
     ]))
 }
