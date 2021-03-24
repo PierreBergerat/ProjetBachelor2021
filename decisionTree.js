@@ -1,24 +1,26 @@
 // Exemple d'utilisation du framework
-let algo = new Algorithm("Decision_Tree");
-algo.createTable('container'); //vecteur de propriétés
-algo.createExplications('explications')
+let algo = new Algorithm({
+    name: 'Decision Tree',
+    tableContainer: 'container',
+    explanationContainer: 'explications'
+});
 const run = () => {
     algo.addTask(new Task('Calculer l\'entropie de la colonne d\'observation',
         'On va utiliser la formule vue en cours pour calculer l\'entropie',
         [
             (values) => {
-                algo.display("Tout d'abord je vais observer les différents labels possibles", 0);
+                algo.display("Tout d'abord je vais observer les différents labels possibles");
                 return {
                     labels:
                         Array.from(new Set(algo.table.filterData((e, x, y) => { return x == algo.table.cols - 1 && y != 0 }).map(x => { return x.value })))
                 };
             },
             (values) => {
-                algo.display('il existe deux valeurs pour la dernière colonne, ' + values.labels[0] + ' et ' + values.labels[1], 1);
+                algo.display('il existe deux valeurs pour la dernière colonne, ' + values.labels[0] + ' et ' + values.labels[1]);
                 return values;
             },
             (values) => {
-                algo.display('Ensuite je vais compter le nombre de chacunes de ces valeurs, en commençant par ' + values.labels[0], 0)
+                algo.display('Ensuite je vais compter le nombre de chacunes de ces valeurs, en commençant par ' + values.labels[0])
                 return {
                     nbLabels: {
                         [values.labels[0]]:
@@ -27,7 +29,7 @@ const run = () => {
                 };
             },
             (values) => {
-                algo.display('Il y en a ' + values.nbLabels[values.labels[0]] + '. Je vais maintenant calculer l\'entropie de ' + algo.table.data[0][algo.table.cols - 1] + ' par rapport aux nombres de cas totaux, qui sont au nombre de ' + (algo.table.rows - 1), 1)
+                algo.display('Il y en a ' + values.nbLabels[values.labels[0]] + '. Je vais maintenant calculer l\'entropie de ' + algo.table.data[0][algo.table.cols - 1] + ' par rapport aux nombres de cas totaux, qui sont au nombre de ' + (algo.table.rows - 1))
                 return {
                     entropy: {
                         [algo.table.data[0][algo.table.cols - 1]]:
@@ -44,8 +46,16 @@ const run = () => {
             return { task2: 'task2Part1' }
         },
         (values) => {
+            algo.display(values);
+            algo.display("test2")
             return { task2: 'task2Part2' }
         }
-
     ]))
+    algo.addTask(new Task('Task3', 'Task3Description', [
+        (values) => {
+            algo.display('coucou')
+            return values
+        }
+    ]))
+    algo.next()
 }

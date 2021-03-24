@@ -24,25 +24,17 @@ class Table {
         this.input.addEventListener("change", (e) => { this.handleFiles(e) }, true);
         this.input.style.display = 'none';
         document.getElementById(container).appendChild(this.input);
-        let addColButton = this.createButton("Ajouter une colonne", () => { this.addColTo(this.cols) });
+        let addColButton = Utils.createButton("Ajouter une colonne", () => { this.addColTo(this.cols) });
         buttonContainer.appendChild(addColButton);
-        let addRowButton = this.createButton("Ajouter une ligne", () => { this.addRowTo(this.rows) });
+        let addRowButton = Utils.createButton("Ajouter une ligne", () => { this.addRowTo(this.rows) });
         buttonContainer.appendChild(addRowButton);
-        let deleteColButton = this.createButton("Supprimer une colonne", () => { this.deleteColFrom(this.cols - 1) });
+        let deleteColButton = Utils.createButton("Supprimer une colonne", () => { this.deleteColFrom(this.cols - 1) });
         buttonContainer.appendChild(deleteColButton);
-        let deleteRowButton = this.createButton("Supprimer une ligne", () => { this.deleteRowFrom(this.rows - 1) });
+        let deleteRowButton = Utils.createButton("Supprimer une ligne", () => { this.deleteRowFrom(this.rows - 1) });
         buttonContainer.appendChild(deleteRowButton);
         this.table = document.getElementById(container).appendChild(buttonContainer)
         this.table = document.getElementById(container).appendChild(document.createElement('div'));
         this.table.classList.add('artint-table');
-    }
-
-    createButton(innerTextValue, onClickCb) {
-        let button = document.createElement('span');
-        button.setAttribute('class', 'artint-buttons');
-        button.innerText = innerTextValue;
-        button.addEventListener('click', onClickCb);
-        return button
     }
 
     setSize = (rows, cols) => {
@@ -73,7 +65,6 @@ class Table {
         this.table.addEventListener('keydown', this.handleKeys, true)
         this.table.addEventListener('contextmenu', (e) => { this.showContextMenu(e) }, true);
         this.table.addEventListener('input', (e) => { this.logChangesIntoData(e) }, true);
-        run();
     }
 
     logChangesIntoData(e) {
@@ -558,6 +549,14 @@ class Table {
 
 class Utils {
 
+    static createButton(innerTextValue, onClickCb) {
+        let button = document.createElement('span');
+        button.setAttribute('class', 'artint-buttons');
+        button.innerText = innerTextValue;
+        button.addEventListener('click', onClickCb);
+        return button
+    }
+
     static rounded = (val, nth) => {
         if (nth < 0 || typeof (nth) !== 'number') {
             return val
@@ -639,6 +638,49 @@ class Utils {
     static min(arr) {
         return arr.reduce((a, b) => a < b ? a : b);
     }
+
+    static * generateID() {
+        let id = 0;
+        while (true) {
+            yield id++;
+        }
+    }
+
+}
+
+class Card {
+    constructor(container) {
+        this.container = document.getElementById(container);
+        this.card = document.createElement('div');
+        this.titleContainer = document.createElement('div');
+        this.title = document.createElement('p');
+        this.subtitleContainer = document.createElement('div');
+        this.subtitle = document.createElement('p');
+        this.descriptionContainer = document.createElement('div');
+        this.description = document.createElement('ol');
+        this.descriptionContainer.appendChild(this.description)
+        this.subtitleContainer.appendChild(this.subtitle)
+        this.titleContainer.appendChild(this.title)
+        this.card.appendChild(this.titleContainer)
+        this.card.appendChild(this.subtitleContainer)
+        this.card.appendChild(this.descriptionContainer)
+        this.container.appendChild(this.card)
+    }
+    setTitle = (title) => {
+        this.title.innerText = title;
+    }
+
+    setSubtitle = (subtitle) => {
+        this.subtitle.innerText = subtitle;
+    }
+
+    setDescription = (description) => {
+        this.description.innerHTML = description;
+    }
+
+    addDescription = (description) => {
+        this.description.innerHTML += `<li>${description}</li>`
+    }
 }
 
 class Algorithm {
@@ -646,15 +688,39 @@ class Algorithm {
      * 
      * @param {*} name 
      */
-    constructor(name) {
-        this.name = name;
+    constructor(params) {
+        if (!params['name']) {
+            console.error('\"name\" parameter is mandatory in \"Algorithm\" constructor')
+            return;
+        }
+        this.cardsStates = [];
+        this.name;
         this.tasks = [];
-        this.table = null;
         this.currentTask = 0;
         this.currentAction = 0;
         this.currentValues = {}
         this.backupValues = [];
-        this.explications = null;
+        this.card;
+        this.table;
+        this.explanations;
+        this.previousCardHTML;
+        for (let param in params) {
+            switch (param) {
+                case 'name':
+                    this.name = params[param];
+                    break;
+                case 'tableContainer':
+                    this.createTable(params[param]);
+                    break;
+                case 'explanationContainer':
+                    this.createExplanations(params[param]);
+                    this.card = new Card(params[param]);
+                    break;
+                default:
+                    console.warn(`Unknown parameter in \"Algorithm\" constructor : ${param}`);
+                    break;
+            }
+        }
     }
 
     /**
@@ -665,19 +731,12 @@ class Algorithm {
         this.table = new Table(container);
     }
 
-    createExplications = (container) => {
-        this.explications = document.getElementById(container);
-        this.previousButton = this.createButton("Reculer d'une étape", () => { this.previous() });
-        this.nextButton = this.createButton("Avancer d'une étape", () => { this.next() });
-        this.explications.appendChild(this.previousButton);
-        this.explications.appendChild(this.nextButton);
-    }
-
-    addCard = (task) => {
-        console.log(task);
-        let card = document.createElement('div');
-        card.innerHTML = `<details><summary><p class=\"artint-title\">${task.name}</p class=\"artint-subtitle\"></summary><p class=\"artint-description\">${task.description}</p><p></p></details>`;
-        this.explications.appendChild(card)
+    createExplanations = (container) => {
+        this.explanations = document.getElementById(container);
+        this.previousButton = Utils.createButton("Reculer d'une étape", () => { this.previous() });
+        this.nextButton = Utils.createButton("Avancer d'une étape", () => { this.next() });
+        this.explanations.appendChild(this.previousButton);
+        this.explanations.appendChild(this.nextButton);
     }
 
     /**
@@ -690,61 +749,53 @@ class Algorithm {
 
 
     next = () => {
-        if (this.currentAction == 0) {
-            this.addCard(this.tasks[this.currentTask]);
+        if (!this.tasks[this.currentTask]) {
+            return false;
         }
-        if (this.tasks[this.currentTask] === undefined) {
-            return false
+        this.cardsStates.push([this.card.title.innerText, this.card.subtitle.innerText, this.card.description.innerHTML])
+        if (this.currentValues) {
+            this.backupValues.push(this.currentValues);
         }
-        if (!this.tasks[this.currentTask].actions[this.currentAction]) {
-            if (this.currentTask + 1 < this.tasks.length) {
-                this.currentTask++;
-                this.currentAction = 0;
-            } else {
-                return false
-            }
+        let tmp = this.card.title.innerHTML;
+        this.card.setTitle(this.tasks[this.currentTask].name)
+        this.card.setSubtitle(this.tasks[this.currentTask].description)
+        if (tmp != this.card.title && this.currentAction == 0) {
+            this.card.setDescription('');
         }
         this.currentValues = { ...this.currentValues, ...(this.tasks[this.currentTask].actions[this.currentAction](this.currentValues)) };
-        this.backupValues.push(this.currentValues);
-        console.log(this.currentAction);
-        if (this.currentAction <= this.tasks[this.currentTask].actions.length - 1 && this.currentTask <= this.tasks[this.tasks.length - 1].actions.length - 1) {
-            this.currentAction++;
+        if (this.currentAction == this.tasks[this.currentTask].actions.length - 1) {
+            this.currentTask++;
+            this.currentAction = 0;
             return true
         }
-        return false
+        if (this.currentAction == this.tasks[this.currentTask].actions.length - 1 && this.currentTask == this.tasks.length - 1) {
+            return false
+        }
+        this.currentAction++;
+        return true;
     }
 
     previous = () => {
-        if (this.currentTask == 0 && this.currentAction == 0) {
+        if (this.currentTask == 0 && this.currentAction == 1) {
             return false
         }
         if (this.currentAction == 0) {
             this.currentTask--;
-            if (this.currentTask < 0) {
-                this.currentTask = 0;
-                return false;
-            }
             this.currentAction = this.tasks[this.currentTask].actions.length - 1;
         } else {
-            if (this.currentAction - 2 < 0) {
-                if (this.currentTask != 0) {
-                    this.currentTask--;
-                    this.currentAction = this.tasks[this.currentTask].actions.length - 1;
-                } else {
-                    this.currentAction = 0;
-                    this.currentTask = 0
-                }
-            } else {
-                this.currentAction -= 2;
-            }
+            this.currentAction--;
         }
-        this.backupValues.pop();
-        this.currentValues = this.backupValues.pop()
-        return this.next()
+        this.currentValues = this.backupValues.pop() || {}
+        if (this.cardsStates.length) {
+            let previous = this.cardsStates.pop();
+            this.card.setTitle(previous[0])
+            this.card.setSubtitle(previous[1])
+            this.card.setDescription(previous[2])
+        }
     }
 
     nextTask = () => {
-        if (this.currentTask + 1 > this.tasks.length) {
+        if (this.currentTask == this.tasks.length - 1) {
             return;
         }
         for (let action = this.currentAction; action <= this.tasks[this.currentTask].actions.length; action++) {
@@ -752,32 +803,8 @@ class Algorithm {
         }
     }
 
-    createButton(innerTextValue, onClickCb) {
-        let button = document.createElement('span');
-        button.setAttribute('class', 'artint-buttons');
-        button.innerText = innerTextValue;
-        button.addEventListener('click', onClickCb);
-        return button
-    }
-
-    /**
-     * 
-     * @returns 
-     */
-    /*playNextTask = () => {
-        if (this.tasks.length > 0) {
-            let task = this.tasks.shift()
-            return task.play(task.actions)
-        }
-    }*/
-
-    display = (msg, lvl = 1) => {
-        lvl = lvl <= 0 ? 1 : lvl + 1;
-        let tab = ''
-        for (let i = 0; i < lvl; i++) {
-            tab += '\t'
-        }
-        console.log(tab + msg);
+    display = (msg) => {
+        this.card.addDescription(msg)
     }
 
 }
@@ -791,6 +818,7 @@ class Task {
      * @param {*} name 
      */
     constructor(name, description, actions) {
+        this.id = idGenerator.next().value
         this.name = name;
         this.description = description;
         if (!actions) {
@@ -805,12 +833,5 @@ class Task {
         }
         this.returnedValues = []
     }
-
-    /*play = (funcArr, param = null) => {
-        if (!funcArr.length) {
-            return param
-        }
-        let func = funcArr.shift()
-        return this.play(funcArr, func(param))
-    }*/
 }
+const idGenerator = Utils.generateID()
