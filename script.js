@@ -519,13 +519,15 @@ class Table {
     }
 
     deselectAll = () => {
-        this.selected.forEach(cell => { this.table.children[cell.y * algo.table.cols + cell.x].classList.remove("artint-selected") });
+        if (this.selected) {
+            this.selected.forEach(cell => { this.table.children[cell.y * algo.table.cols + cell.x].style.boxShadow = `none`; });
+        }
         this.selected = []
     }
 
     selectWhere = (cellArr, color = 'green', shouldDeselect = true) => {
         if (this.selected && shouldDeselect) {
-            this.selected.forEach(cell => { this.table.children[cell.y * algo.table.cols + cell.x].classList.remove("artint-selected") });
+            this.selected.forEach(cell => { this.table.children[cell.y * algo.table.cols + cell.x].style.boxShadow = `none`; });
             this.selected.length = 0;
         }
         cellArr.forEach(cell => { this.table.children[cell.y * algo.table.cols + cell.x].style.boxShadow = `inset 0px 0px 10px 1px ${color}`; });
@@ -564,16 +566,23 @@ class Utils {
         return Math.floor(val * 10 ** nth) / 10 ** nth
     }
 
+    static entropyFormula = (arr, size) => {
+        if (arr.constructor === Array) {
+            return ('(-' + arr.length + '/' + size + ') * Math.log2(' + arr.length + '/' + size + ') - (' + (size - arr.length) + '/' + size + ') * Math.log2(' + (size - arr.length) + '/' + size + ') ~= ' + ((-arr.length / size) * Math.log2(arr.length / size) - ((size - arr.length) / size) * Math.log2((size - arr.length) / size)))
+        } else if (typeof (arr) === 'number') {
+            return ('(-' + arr + '/' + size + ') * Math.log2(' + arr + '/' + size + ') - (' + (size - arr) + '/' + size + ') * Math.log2(' + (size - arr) + '/' + size + ') ~= ' + ((-arr / size) * Math.log2(arr / size) - ((size - arr) / size) * Math.log2((size - arr) / size)))
+        }
+
+    }
+
     static calculateEntropy = (arr, size) => {
         if (arr.constructor === Array) {
             console.log('(-' + arr.length + '/' + size + ') * Math.log2(' + arr.length + '/' + size + ') - (' + (size - arr.length) + '/' + size + ') * Math.log2(' + (size - arr.length) + '/' + size + ') ~= ' + ((-arr.length / size) * Math.log2(arr.length / size) - ((size - arr.length) / size) * Math.log2((size - arr.length) / size)));
             return (-arr.length / size) * Math.log2(arr.length / size) - ((size - arr.length) / size) * Math.log2((size - arr.length) / size)
-        } else {
-            if (typeof (arr) === 'number') {
-                console.log('(-' + arr + '/' + size + ') * Math.log2(' + arr + '/' + size + ') - (' + (size - arr) + '/' + size + ') * Math.log2(' + (size - arr) + '/' + size + ') ~= ' + ((-arr / size) * Math.log2(arr / size) - ((size - arr) / size) * Math.log2((size - arr) / size)));
-                return (-arr / size) * Math.log2(arr / size) - ((size - arr) / size) * Math.log2((size - arr) / size)
-            }
-        }
+        } else if (typeof (arr) === 'number') {
+            console.log('(-' + arr + '/' + size + ') * Math.log2(' + arr + '/' + size + ') - (' + (size - arr) + '/' + size + ') * Math.log2(' + (size - arr) + '/' + size + ') ~= ' + ((-arr / size) * Math.log2(arr / size) - ((size - arr) / size) * Math.log2((size - arr) / size)));
+            return (-arr / size) * Math.log2(arr / size) - ((size - arr) / size) * Math.log2((size - arr) / size)
+        } return null
     }
 
     /**
@@ -639,13 +648,6 @@ class Utils {
         return arr.reduce((a, b) => a < b ? a : b);
     }
 
-    static * generateID() {
-        let id = 0;
-        while (true) {
-            yield id++;
-        }
-    }
-
 }
 
 class Card {
@@ -654,17 +656,20 @@ class Card {
         this.card = document.createElement('div');
         this.titleContainer = document.createElement('div');
         this.title = document.createElement('p');
+        this.title.classList.add('artint-title');
         this.subtitleContainer = document.createElement('div');
         this.subtitle = document.createElement('p');
+        this.subtitle.classList.add('artint-subtitle');
         this.descriptionContainer = document.createElement('div');
         this.description = document.createElement('ol');
-        this.descriptionContainer.appendChild(this.description)
-        this.subtitleContainer.appendChild(this.subtitle)
-        this.titleContainer.appendChild(this.title)
-        this.card.appendChild(this.titleContainer)
-        this.card.appendChild(this.subtitleContainer)
-        this.card.appendChild(this.descriptionContainer)
-        this.container.appendChild(this.card)
+        this.description.classList.add('artint-description');
+        this.descriptionContainer.appendChild(this.description);
+        this.subtitleContainer.appendChild(this.subtitle);
+        this.titleContainer.appendChild(this.title);
+        this.card.appendChild(this.titleContainer);
+        this.card.appendChild(this.subtitleContainer);
+        this.card.appendChild(this.descriptionContainer);
+        this.container.appendChild(this.card);
     }
     setTitle = (title) => {
         this.title.innerText = title;
@@ -679,7 +684,7 @@ class Card {
     }
 
     addDescription = (description) => {
-        this.description.innerHTML += `<li>${description}</li>`
+        this.description.innerHTML += `<li>${description}</li>`;
     }
 }
 
@@ -690,20 +695,20 @@ class Algorithm {
      */
     constructor(params) {
         if (!params['name']) {
-            console.error('\"name\" parameter is mandatory in \"Algorithm\" constructor')
+            console.error('\"name\" parameter is mandatory in \"Algorithm\" constructor');
             return;
         }
         this.cardsStates = [];
+        this.valuesStates = [];
+        this.selectedStates = [];
         this.name;
         this.tasks = [];
         this.currentTask = 0;
         this.currentAction = 0;
         this.currentValues = {}
-        this.backupValues = [];
         this.card;
         this.table;
         this.explanations;
-        this.previousCardHTML;
         for (let param in params) {
             switch (param) {
                 case 'name':
@@ -733,8 +738,10 @@ class Algorithm {
 
     createExplanations = (container) => {
         this.explanations = document.getElementById(container);
+        this.startButton = Utils.createButton("Démarrer les explications", () => { if (this.table.cols > 0 && this.table.rows > 1) { artintRun(); this.resetButton = Utils.createButton("Réinitialiser", () => { while (this.previous()) { }; this.table.deselectAll(); }); this.explanations.insertBefore(this.resetButton, this.startButton); this.startButton.remove(); } });
         this.previousButton = Utils.createButton("Reculer d'une étape", () => { this.previous() });
         this.nextButton = Utils.createButton("Avancer d'une étape", () => { this.next() });
+        this.explanations.appendChild(this.startButton);
         this.explanations.appendChild(this.previousButton);
         this.explanations.appendChild(this.nextButton);
     }
@@ -754,7 +761,7 @@ class Algorithm {
         }
         this.cardsStates.push([this.card.title.innerText, this.card.subtitle.innerText, this.card.description.innerHTML])
         if (this.currentValues) {
-            this.backupValues.push(this.currentValues);
+            this.valuesStates.push(this.currentValues);
         }
         let tmp = this.card.title.innerHTML;
         this.card.setTitle(this.tasks[this.currentTask].name)
@@ -776,7 +783,7 @@ class Algorithm {
     }
 
     previous = () => {
-        if (this.currentTask == 0 && this.currentAction == 1) {
+        if (this.currentTask == 0 && this.currentAction == 0) {
             return false
         }
         if (this.currentAction == 0) {
@@ -785,13 +792,14 @@ class Algorithm {
         } else {
             this.currentAction--;
         }
-        this.currentValues = this.backupValues.pop() || {}
+        this.currentValues = this.valuesStates.pop() || {}
         if (this.cardsStates.length) {
             let previous = this.cardsStates.pop();
             this.card.setTitle(previous[0])
             this.card.setSubtitle(previous[1])
             this.card.setDescription(previous[2])
         }
+        return true;
     }
 
     nextTask = () => {
@@ -818,7 +826,6 @@ class Task {
      * @param {*} name 
      */
     constructor(name, description, actions) {
-        this.id = idGenerator.next().value
         this.name = name;
         this.description = description;
         if (!actions) {
@@ -834,4 +841,3 @@ class Task {
         this.returnedValues = []
     }
 }
-const idGenerator = Utils.generateID()
