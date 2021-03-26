@@ -128,3 +128,47 @@
     padding-left: 1%;
     font-size: initial;
 }
+
+.artint-inline {
+    display: inline;
+}
+
+.artint-red {
+    color: red;
+}
+
+.artint-orange {
+    color: orange;
+}
+
+.artint-yellow {
+    color: yellow;
+}
+
+.artint-green {
+    color: green;
+}
+
+.artint-blue {
+    color: blue;
+}
+
+.artint-highlight-red {
+    background-color: red;
+}
+
+.artint-highlight-orange {
+    background-color: orange;
+}
+
+.artint-highlight-yellow {
+    background-color: yellow;
+}
+
+.artint-highlight-green {
+    background-color: green;
+}
+
+.artint-highlight-blue {
+    background-color: blue;
+}
