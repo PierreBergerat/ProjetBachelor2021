@@ -67,11 +67,13 @@ const artintRun = () => {
             return { task2: 'task2Part2' }
         }
     ]))
-    algo.addTask(new Task('Task3', 'Task3Description', [
+    let selfAddingTask = new Task('Task3', 'Task3Description', [
         (values) => {
-            algo.display('coucou')
-            return values
+            algo.display('<h1>task3.1</h1>')
+            selfAddingTask.addAction((values) => { algo.display("selfAddedTask"); return { selfAdded: 654321 } })
+            return { test: 123456 }
         }
-    ]))
+    ])
+    algo.addTask(selfAddingTask)
     algo.next()
 }

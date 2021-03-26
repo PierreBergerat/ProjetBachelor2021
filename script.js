@@ -684,17 +684,17 @@ class Card {
     }
 
     addDescription = (description) => {
-        description = description
-            .replaceAll("<red>", "<p class=\"artint-red artint-inline\">").replaceAll("</red>", "</p>")
-            .replaceAll("<orange>", "<p class=\"artint-orange artint-inline\">").replaceAll("</orange>", "</p>")
-            .replaceAll("<yellow>", "<p class=\"artint-yellow artint-inline\">").replaceAll("</yellow>", "</p>")
-            .replaceAll("<green>", "<p class=\"artint-green artint-inline\">").replaceAll("</green>", "</p>")
-            .replaceAll("<blue>", "<p class=\"artint-blue artint-inline\">").replaceAll("</blue>", "</p>")
+        description = description.toString()
+            .replaceAll("<red>", "<div class=\"artint-red artint-inline\">").replaceAll("</red>", "</div>")
+            .replaceAll("<orange>", "<div class=\"artint-orange artint-inline\">").replaceAll("</orange>", "</div>")
+            .replaceAll("<yellow>", "<div class=\"artint-yellow artint-inline\">").replaceAll("</yellow>", "</div>")
+            .replaceAll("<green>", "<div class=\"artint-green artint-inline\">").replaceAll("</green>", "</div>")
+            .replaceAll("<blue>", "<p class=\"artint-blue artint-inline\">").replaceAll("</blue>", "</div>")
             .replaceAll("<h_red>", "<div class=\"artint-highlight-red artint-inline\">").replaceAll("</h_red>", "</div>")
             .replaceAll("<h_orange>", "<div class=\"artint-highlight-orange artint-inline\">").replaceAll("</h_orange>", "</div>")
             .replaceAll("<h_yellow>", "<div class=\"artint-highlight-yellow artint-inline\">").replaceAll("</h_yellow>", "</div>")
             .replaceAll("<h_green>", "<div class=\"artint-highlight-green artint-inline\">").replaceAll("</h_green>", "</div>")
-            .replaceAll("<h_blue>", "<div class=\"artint-highlight-blue artint-inline\">").replaceAll("</h_blue>", "</div>")
+            .replaceAll("<h_blue>", "<div class=\"artint-highlight-blue artint-inline\">").replaceAll("</h_blue>", "</div>");
         this.description.innerHTML += `<li>${description}</li>`;
     }
 
@@ -859,6 +859,8 @@ class Task {
         } else {
             throw new Error('\"actions\" parameter should be of type Array[Function] or Function, here : ' + actions.constructor.name)
         }
-        this.returnedValues = []
+    }
+    addAction = (action) => {
+        this.actions.push(action)
     }
 }
