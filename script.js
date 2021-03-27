@@ -1,8 +1,8 @@
 class Table {
     /**
      * 
-     * @constructor
-     * @param {string} container 
+     * @constructor Creates a new table
+     * @param {string} container - the id of a div which will contain the table
      */
     constructor(container) {
         this.sortBy = -1;
@@ -37,6 +37,11 @@ class Table {
         this.table.classList.add('artint-table');
     }
 
+    /**
+     * Sets the size of the table (data structure)
+     * @param {Number} rows - The number of rows the table should have once set 
+     * @param {Number} cols - The number of cols the table should have once set
+     */
     setSize = (rows, cols) => {
         this.rows = rows;
         this.cols = cols;
@@ -45,9 +50,9 @@ class Table {
     }
 
     /**
-     * 
-     * @param {*} rows 
-     * @param {*} cols 
+     * Creates the table per se, creating each cells needed to fill a table of size rows*cols (html wise)
+     * @param {*} rows - The number of rows the table should have once set 
+     * @param {*} cols - The number of cols the table should have once set
      */
     makeTable = (rows, cols) => {
         this.table.innerHTML = "";
@@ -67,6 +72,11 @@ class Table {
         this.table.addEventListener('input', (e) => { this.logChangesIntoData(e) }, true);
     }
 
+    /**
+     * Stores changes made in the html (user input) into the data structure
+     * @param {Event} e 
+     * @returns 
+     */
     logChangesIntoData(e) {
         e = e || window.event;
         if (e.target.tagName !== 'INPUT') {
@@ -79,6 +89,11 @@ class Table {
         }
     }
 
+    /**
+     * Creates and displays the contextual menu (right-click menu)
+     * @param {Event} e 
+     * @returns 
+     */
     showContextMenu(e) {
         e = e || window.event;
         if (e.target.tagName !== 'INPUT') {
@@ -241,8 +256,8 @@ class Table {
 
 
     /**
-     * 
-     * @param {*} e 
+     * Handles key input made in the table
+     * @param {Event} e 
      * @returns 
      */
     handleKeys(e) {
@@ -315,8 +330,8 @@ class Table {
     }
 
     /**
-     * 
-     * @param {*} n 
+     * Adds a column to the nth position of the table then refreshes the display
+     * @param {Number} n - the position of the column to be added
      */
     addColTo(n) {
         for (let i = 0; i < this.data.length; i++) {
@@ -327,8 +342,8 @@ class Table {
     }
 
     /**
-     * 
-     * @param {*} n 
+     * Adds a row to the nth position of the table then refreshes the display
+     * @param {Number} n - the position of the row to be added
      */
     addRowTo(n) {
         if (this.data.length && !this.data[0].length) {
@@ -340,8 +355,8 @@ class Table {
     }
 
     /**
-     * 
-     * @param {*} n 
+     * Removes the nth col of the table then refreshes the display
+     * @param {Number} n - the position of the column to be removed
      */
     deleteColFrom(n) {
         if (this.data.length && !this.data[0].length) {
@@ -355,8 +370,8 @@ class Table {
     }
 
     /**
-     * 
-     * @param {*} n 
+     * Removes the nth row of the table then refreshes the display
+     * @param {Number} n - the position of the row to be removed 
      */
     deleteRowFrom(n) {
         if (this.data.length <= 1 || !this.data[0].length) {
@@ -368,8 +383,8 @@ class Table {
     }
 
     /**
-     * 
-     * @param {*} data 
+     * Fills an already created table with parsed data
+     * @param {Array[Array]} data - Parsed data (coming from CSV.parse)
      */
     fillTable = (data) => {
         let rowSize = data[0].length;
@@ -385,10 +400,10 @@ class Table {
 
     CSV = {
         /**
-         * 
-         * @param {*} csv 
-         * @param {*} filter 
-         * @returns 
+         * Parses CSV data
+         * @param {String} csv - data (in csv form) to be parsed 
+         * @param {Function} [filter=function (r, c, v) { return v; }] - Optionnal "reviver" function  that can be run after parsing
+         * @returns the parsed data in an Array of Array
          */
         parse: function (csv, filter) {
             filter = filter || function (r, c, v) { return v; };
@@ -438,8 +453,8 @@ class Table {
     };
 
     /**
-     * 
-     * @param {*} event 
+     * Handles the upload of a file when the according field is triggered by the user
+     * @param {Event} event 
      */
     handleFiles(event) {
         let fileType = event.target.value.split('.').pop().toLowerCase();
@@ -462,8 +477,9 @@ class Table {
 
     /**
      * 
-     * @param {*} col 
-     * @returns 
+     * @param {Number} col - The column index whose values should be returned
+     * @param {Boolean} [shouldIncludeHeaders=true] - Indicated whether the headers should be included in the returned value 
+     * @returns The values stored in col
      */
     getColValues = (col, shouldIncludeHeaders = true) => {
         if (typeof (col) === 'string') {
@@ -483,20 +499,25 @@ class Table {
 
     /**
      * 
-     * @param {*} col 
-     * @returns 
+     * @param {Number} col - The column index whose name should be returned
+     * @returns The name of the col
      */
     getColName = (col) => {
         return this.data[0][col]
     }
 
+    /**
+     * 
+     * @param {String} colName - The name of the column whose index should be returned
+     * @returns The index of the column indicated by colName
+     */
     getColByName = (colName) => {
         return this.data[0].indexOf(colName)
     }
 
     /**
      * 
-     * @returns 
+     * @returns The number of cols the table has
      */
     getNumberCols = () => {
         return this.cols;
@@ -504,7 +525,7 @@ class Table {
 
     /**
      * 
-     * @returns 
+     * @returns The number of rows the table has
      */
     getNumberRows = () => {
         return this.rows;
@@ -512,12 +533,15 @@ class Table {
 
     /**
      * 
-     * @returns 
+     * @returns The total number of cells the table has
      */
     getTotalCellsNumber = () => {
         return this.rows * this.cols;
     }
 
+    /**
+     * Removes all selected cells
+     */
     deselectAll = () => {
         if (this.selected) {
             this.selected.forEach(cell => { this.table.children[cell.y * algo.table.cols + cell.x].style.boxShadow = `none`; });
@@ -525,6 +549,12 @@ class Table {
         this.selected = []
     }
 
+    /**
+     * Select the html cells corresponding to the cells present in cellArr (result from filterData)
+     * @param {Array[cell]} cellArr - Array of cell created with the filterData function
+     * @param {String} [color=green] - CSS color of the selection
+     * @param {Boolean} [shouldDeselect=true] - Indicates whether already selected files should be deselected or not
+     */
     selectWhere = (cellArr, color = 'green', shouldDeselect = true) => {
         if (this.selected && shouldDeselect) {
             this.selected.forEach(cell => { this.table.children[cell.y * algo.table.cols + cell.x].style.boxShadow = `none`; });
@@ -539,8 +569,15 @@ class Table {
 
     /**
      * 
-     * @param {*} where 
-     * @returns 
+     * @param {Function} where - Function that has 3 params indicating a cell value, its column index and its row index. The return value is a filter of the params.
+     * Each param has to be included in the function signature but doesn't have to be used in said function (see below)
+     * Example of where value (ES6) : (e,x,y) => {return e == 'value' && x == 0 && y != 0} //Returns the cells having a value "value", a column index of 0 (first column) and a row index not equals to 0 (not a header)
+     * Example of where value (old JS) : function(e,x,y){return y == 0} //Returns all headers
+     * 
+     * Others :
+     * (e,x,y) => {return e.includes("value")} //Returns all cells whose value contains "value"
+     * (e,x,y) => {return x != y} //Returns all cells which indexes are not the same for columns and rows
+     * @returns an array of cells objects with their positions and value as attributes
      */
     filterData = (where) => {
         let res = []
