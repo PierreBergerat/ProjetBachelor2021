@@ -1,8 +1,22 @@
+/*
+Artint.js
+JavaScript framework aiming to help people design and explaining artifical intelligence algorithm
+IMPORTANT : None of the CSS is added programmatically, which means the style.css can be customized in order to tweak the final look.
+            However, one shouldn't alter the "grid-template-rows" and "grid-template-columns" settings in artint-table except if such act is done
+            for testing 
+*/
+
 class Table {
     /**
      * 
      * @constructor Creates a new table
      * @param {string} container - the id of a div which will contain the table
+     * The table is a way to input data into the algorithm.
+     * The table can be created and filled manually via the buttons and the manual writing of any values
+     * The table can be created and filled automatically via the upload of a CSV file containing the data
+     * The user can navigate through the data using the arrow keys of the keyboard
+     * A right click event on one of the cells will display a contextual menu allowing the adding, deleting or cleaning of a row/column
+     * A column can be sorted via a right click on its header.
      */
     constructor(container) {
         this.sortBy = -1;
@@ -587,7 +601,17 @@ class Table {
 }
 
 class Utils {
+    /**
+     * The Utils class contains useful static functions of multiple types, which mean the class doesn't need any instanciation to be used.
+     * The methods can be accessed via "Utils.NAME_OF_THE_METHOD(@param)".
+     */
 
+    /**
+     * Creates an html "button" (it is a clickable span)
+     * @param {String} innerTextValue - The value the button should display
+     * @param {Function} onClickCb  - a function indicating what the button should do when clicked
+     * @returns The newly created button as an HTMLElement
+     */
     static createButton(innerTextValue, onClickCb) {
         let button = document.createElement('span');
         button.setAttribute('class', 'artint-buttons');
@@ -596,6 +620,13 @@ class Utils {
         return button
     }
 
+    /**
+     * Rounds a number to the desired precision
+     * @param {Number} val - The number to round 
+     * @param {Number} nth - How many significant figures the result should have
+     * Example : rounded(3.141592654, 3) => 3.141
+     * @returns The rounded number
+     */
     static rounded = (val, nth) => {
         if (nth < 0 || typeof (nth) !== 'number') {
             return val
@@ -603,6 +634,12 @@ class Utils {
         return Math.floor(val * 10 ** nth) / 10 ** nth
     }
 
+    /**
+     * Allows the display of the entropy Formula as a string as it can be useful to see what number are put in and how they interact
+     * @param {Array[Number]|Number} arr - Array of numbers representing a subset of the entire set of data or number indicating the size of said subset 
+     * @param {Number} size - Size of the entire set
+     * @returns a String describing the formula with variables replaced by the params of the function
+     */
     static entropyFormula = (arr, size) => {
         if (arr.constructor === Array) {
             return ('(-' + arr.length + '/' + size + ') * Math.log2(' + arr.length + '/' + size + ') - (' + (size - arr.length) + '/' + size + ') * Math.log2(' + (size - arr.length) + '/' + size + ') ~= ' + ((-arr.length / size) * Math.log2(arr.length / size) - ((size - arr.length) / size) * Math.log2((size - arr.length) / size)))
@@ -612,6 +649,12 @@ class Utils {
 
     }
 
+    /**
+     * Applies the entropy formula to a subset given a set
+     * @param {Array[Number]|Number} arr - Array of numbers representing a subset of the entire set of data or number indicating the size of said subset
+     * @param {Number} size - Size of the entire set
+     * @returns a Number containing the result of the formula (or null if arr is not an array or a number)
+     */
     static calculateEntropy = (arr, size) => {
         if (arr.constructor === Array) {
             console.log('(-' + arr.length + '/' + size + ') * Math.log2(' + arr.length + '/' + size + ') - (' + (size - arr.length) + '/' + size + ') * Math.log2(' + (size - arr.length) + '/' + size + ') ~= ' + ((-arr.length / size) * Math.log2(arr.length / size) - ((size - arr.length) / size) * Math.log2((size - arr.length) / size)));
@@ -623,18 +666,18 @@ class Utils {
     }
 
     /**
-     * 
-     * @param {*} arr 
-     * @returns 
+     * Returns the average value of an Array of Numbers
+     * @param {Array[Number]} arr  - the array whose average value will be computed
+     * @returns a Number representing the average value of arr
      */
     static avg = (arr) => {
         return (arr.reduce((a, b) => a + b, 0)) / arr.length;
     }
 
     /**
-     * 
-     * @param {*} arr 
-     * @returns 
+     * Returns the standard deviation of an Array of Numbers
+     * @param {Array[Number]} arr - the array whose standard deviation will be computed
+     * @returns a Number representing the standard deviation of arr
      */
     static stdDev = (arr) => {
         let mean = arr.reduce((a, b) => a + b) / arr.length;
@@ -642,9 +685,9 @@ class Utils {
     }
 
     /**
-     * 
-     * @param {*} arr 
-     * @returns 
+     * Returns the unique values of an Array of any type
+     * @param {Array[Number]} arr - the array whose unique values will be computed
+     * @returns the unique values of arr
      */
     static uniqueValues = (arr) => {
         let res = {}
@@ -654,32 +697,28 @@ class Utils {
         return res;
     }
 
-    static mean(arr) {
-        return arr.reduce((a, b) => a + b) / arr.length;
-    }
-
     /**
-     * 
-     * @param {*} arr 
-     * @returns 
+     * Returns the sum of the elements contained in an Array of Numbers
+     * @param {Array[Number]} arr - the array whose sum will be computed
+     * @returns the sum of the elements of arr
      */
     static sum(arr) {
         return arr.reduce((a, b) => a + b, 0);
     }
 
     /**
-     * 
-     * @param {*} arr 
-     * @returns 
+     * Returns the max value of an Array of Numbers
+     * @param {Array[Number]} arr - the array whose max value will be retrieved
+     * @returns the maximum value contained in arr
      */
     static max(arr) {
         return arr.reduce((a, b) => a > b ? a : b);
     }
 
     /**
-     * 
-     * @param {*} arr 
-     * @returns 
+     * Returns the max value of an Array of Numbers
+     * @param {Array[Number]} arr - the array whose minimal value will be retrieved
+     * @returns the minimal value contained in arr
      */
     static min(arr) {
         return arr.reduce((a, b) => a < b ? a : b);
@@ -688,6 +727,13 @@ class Utils {
 }
 
 class Card {
+    /**
+     * @constructor Creates a new "Card" which is a way to display information on the screen
+     * @param {String} container - id of the HTML container in which the card will be put
+     * The card is a way to display information onto the page.
+     * It has a title, a subtitle and one or many description points, whose contents are completely free.
+     * different HTML tags, elements, or styling can be inputed in order to get the expected output.
+     */
     constructor(container) {
         this.container = document.getElementById(container);
         this.card = document.createElement('div');
@@ -708,18 +754,37 @@ class Card {
         this.card.appendChild(this.descriptionContainer);
         this.container.appendChild(this.card);
     }
+
+    /**
+     * Sets the card title
+     * @param {String} title - the new title of the card
+     */
     setTitle = (title) => {
         this.title.innerText = title;
     }
 
+    /**
+     * Sets the card subtitle
+     * @param {String} subtitle - the new subtitle of the card
+     */
     setSubtitle = (subtitle) => {
         this.subtitle.innerText = subtitle;
     }
 
+    /**
+     * Sets the card description
+     * @param {String} description - the new description of the card
+     */
     setDescription = (description) => {
         this.description.innerHTML = description;
     }
 
+    /**
+     * Adds a new "bullet point" to the description (doesn't remove any previous element)
+     * @param {String} description
+     * This method supports the use of custom "HTML tags" such as <red> or <h_yellow>.
+     * Those allow the user to add colors to the text they are showing in order to get more focus
+     */
     addDescription = (description) => {
         description = description.toString()
             .replaceAll("<red>", "<div class=\"artint-red artint-inline\">").replaceAll("</red>", "</div>")
@@ -735,21 +800,33 @@ class Card {
         this.description.innerHTML += `<li>${description}</li>`;
     }
 
+    /**
+     * Removes the n last elements of the description. Can be used as a way to show loops or algorithm choices
+     * @param {Number} n - the number of elements to be removed
+     * @returns a Boolean indicating whether all element have been correctly removed (true) or if n was too big (false)
+     */
     removeNthLastDescription = (n) => {
         for (let i = n; i > 0; i--) {
             if (!this.description.children.length) {
-                return
+                return false
             }
             this.description.lastChild.remove()
         }
+        return true
     }
 
 }
 
 class Algorithm {
     /**
-     * 
-     * @param {*} name 
+     * @constructor Creates a new Algorithm
+     * @param {String} name - The name of the new algorithm
+     * The Algorithm class is the core of any project made with the framework. It is the controller that will handle data,
+     * display of information and user actions.
+     * An algorithm has one or many Tasks which have one or many actions.
+     * A task can be seen as one big operation that will need one or more smaller operations to be fulfilled.
+     * However, the granularity of those is implementation free and can be decided by the user. This way, a considerable but known calculus can be
+     * reduced to one task with one action, since the said calculus isn't what the user wants to show/prove.
      */
     constructor(params) {
         if (!params['name']) {
@@ -787,13 +864,17 @@ class Algorithm {
     }
 
     /**
-     * 
-     * @param {*} container 
+     * Adds a table to the algorithm
+     * @param {String} container - The id of the HTML container that will contain the table
      */
     createTable = (container) => {
         this.table = new Table(container);
     }
 
+    /**
+     * Creates the buttons needed to interact with the algorithm.
+     * @param {String} container - The id of the HTML container that will contain the buttons
+     */
     createExplanations = (container) => {
         this.explanations = document.getElementById(container);
         this.startButton = Utils.createButton("Démarrer les explications", () => { if (this.table.cols > 0 && this.table.rows > 1) { artintRun(); this.resetButton = Utils.createButton("Réinitialiser", () => { while (this.previous()) { }; this.table.deselectAll(); }); this.explanations.insertBefore(this.resetButton, this.startButton); this.startButton.remove(); } });
@@ -805,14 +886,17 @@ class Algorithm {
     }
 
     /**
-     * 
-     * @param {*} nom 
+     * Adds a new task to the algorithm
+     * @param {Task} task - the task to be added
      */
     addTask = (task) => {
         this.tasks.push(task);
     }
 
-
+    /**
+     * Plays and displays the next action/task of the algorithm
+     * @returns false if all actions and tasks have been played, true if the operation succeeded
+     */
     next = () => {
         if (!this.tasks[this.currentTask]) {
             return false;
@@ -840,6 +924,10 @@ class Algorithm {
         return true;
     }
 
+    /**
+     * Goes back one step (action or task)
+     * @returns false upon failure (Action 0 of Task 0), true upon success
+     */
     previous = () => {
         if (this.currentTask == 0 && this.currentAction == 0) {
             return false
@@ -860,6 +948,10 @@ class Algorithm {
         return true;
     }
 
+    /**
+     * Plays every action of the current task in order to get to the next task
+     * @returns void
+     */
     nextTask = () => {
         if (this.currentTask == this.tasks.length - 1) {
             return;
@@ -869,19 +961,26 @@ class Algorithm {
         }
     }
 
+    /**
+     * Allows the user to display information in the description part of the card
+     * @param {String} msg - the message to be displayed. Can contain HTML tags, functions, etc.
+     * Ex : <red><p>This is very important</p></red> // will display the message "this is very important" as a paragraph with red font color
+     */
     display = (msg) => {
         this.card.addDescription(msg)
     }
 
 }
 
-/**
- * 
- */
 class Task {
     /**
-     * 
-     * @param {*} name 
+     * @constructor creates a new task
+     * @param {String} name - the name of the task. Serves as title and will be displayed in the card
+     * @param {String} description - the description of the task. Serves as subtitle and will be displayed in the card
+     * @param {Array[Function]|Function} actions - Function(s) that will be played sequentially during the execution of the algorithm
+     * A task can be seen as a box containing multiple actions. Those actions are functions that will be played during the execution of the
+     * algorithm. However, each actions doesn't have to be atomic. An action can do many operations or just one based on what the user needs.
+     * It is also possible to create an actions that adds more actions to the current task, which can be used during loops for example.
      */
     constructor(name, description, actions) {
         this.name = name;
@@ -897,6 +996,11 @@ class Task {
             throw new Error('\"actions\" parameter should be of type Array[Function] or Function, here : ' + actions.constructor.name)
         }
     }
+
+    /**
+     * Adds an action to the task 
+     * @param {Function} action - the action to be added
+     */
     addAction = (action) => {
         this.actions.push(action)
     }
