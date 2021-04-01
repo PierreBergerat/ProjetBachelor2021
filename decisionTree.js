@@ -22,12 +22,12 @@ const artintRun = () => {
                         str += " et "
                     }
                     str += values.labels[i]
-                    if (i != 0 && i != values.labels.length - 1) {
+                    if (i != values.labels.length - 1) {
                         str += ", "
                     }
                 }
                 algo.table.selectWhere(algo.table.filterData((e, x, y) => { return x == algo.table.cols - 1 && y != 0 }))
-                algo.display(`il existe ${values.labels.length} valeurs pour la dernière colonne, ` + str);
+                algo.display(`il existe ${values.labels.length} valeurs pour la dernière colonne : ` + str);
                 return values;
             },
             (values) => {
