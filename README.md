@@ -25,7 +25,7 @@
  ┃ ┣ 📜iris.csv // Informations sur des fleurs
  ┃ ┗ 📜netflix_titles.csv // Informations sur des séries Netflix (/!\ Grand fichier)
  ┣ 📜index.html // Contient la structure de la page Web
- ┣ 📜decisionTree.js // Implémentation de naive Bayes (démonstration du framework)
+ ┣ 📜decisionTree.js // Implémentation de l'algorithme ID3 (démonstration du framework)
  ┣ 📜README.md // Instructions et informations
  ┣ 📜script.js // Fonctions et classes
  ┗ 📜style.css // Données de mise en page
