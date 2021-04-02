@@ -1,12 +1,24 @@
-const getMethods = (obj) => {
+/**
+ * 
+ * @param {prototype} prototype - the class prototype (passed via CLASSNAME.prototype) to target 
+ * @returns - all the methods presents in the prototype
+ */
+const getMethods = (prototype) => {
   let properties = new Set();
-  let currentObj = obj;
+  let currentObj = prototype;
   do {
     Object.getOwnPropertyNames(currentObj).map(item => properties.add(item));
   } while ((currentObj = Object.getPrototypeOf(currentObj)));
-  return [...properties.keys()].filter(item => typeof obj[item] === 'function');
+  return [...properties.keys()].filter(item => typeof prototype[item] === 'function');
 }
 
+/**
+ * Augments a default method with another
+ * @param {prototype} target 
+ * @param {Function} methodName 
+ * @param {Function} aspect 
+ * @param {String} advice 
+ */
 function replaceMethod(target, methodName, aspect, advice) {
   const originalCode = target[methodName];
   target[methodName] = (...args) => {
@@ -25,6 +37,12 @@ function replaceMethod(target, methodName, aspect, advice) {
   }
 }
 
+/**
+ * 
+ * @param {prototype} target 
+ * @param {Function} aspect 
+ * @param {String} advice 
+ */
 function inject(target, aspect, advice) {
   const methods = getMethods(target);
   methods.forEach(m => {
@@ -32,17 +50,31 @@ function inject(target, aspect, advice) {
   })
 }
 
+/**
+ * Example function to be run before another
+ * @param  {...any} args 
+ */
 function loggingAspect(...args) {
   console.log("== Calling the logger function ==");
   console.log("Arguments received: " + args);
 }
 
+/**
+ * Example function to be run after the return of another function
+ * @param {any} value 
+ */
 function printTypeOfReturnedValueAspect(value) {
   console.log("Returned type: " + typeof value);
 }
 
 var functionLogger = {};
 
+/**
+ * Logs the function calls
+ * @param {Function} func 
+ * @param {String} name 
+ * @returns 
+ */
 functionLogger.getLoggableFunction = function (func, name) {
   return function () {
     check(func, name, arguments)
@@ -62,6 +94,10 @@ functionLogger.getLoggableFunction = function (func, name) {
   }
 };
 
+/**
+ * 
+ * @param {namespaceObject} namespaceObject 
+ */
 functionLogger.addLoggingToNamespace = function (namespaceObject) {
   for (var name in namespaceObject) {
     var potentialFunction = namespaceObject[name];
