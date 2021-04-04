@@ -4,8 +4,6 @@
 const run = () => {
     var arrayToSort = [12, 345, 4, 546, 122, 84, 98, 64, 9, 1, 3223, 455, 23, 234, 213]
     bubble_Sort(arrayToSort)
-    inject(Test.prototype, loggingAspect, "before") // Registers the "Test" class to the observer. See observer.js for further informations
-    inject(Test.prototype, printTypeOfReturnedValueAspect, "afterReturning")
     var t = new Test()
     t.greets()
 }

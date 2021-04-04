@@ -8,7 +8,7 @@ var shouldDisplayImplementation = true
  * @returns 
  */
 function check(func, name, args) {
-    console.log(func, name, args);
+    console.log(name + '(' + args + ')');
     if (shouldDisplayImplementation) {
         console.log(func.toString());
     }

@@ -23,7 +23,7 @@ function replaceMethod(target, methodName, aspect, advice) {
   const originalCode = target[methodName];
   target[`${methodName}`] = (...args) => {
     if (["before", "around"].includes(advice)) {
-      aspect.apply(target, [methodName, args]);
+      aspect.apply(target, [originalCode,methodName, args]);
     }
     const returnedValue = originalCode.apply(target, args);
     if (["after", "around"].includes(advice)) {
@@ -55,6 +55,7 @@ function inject(target, aspect, advice) {
  * @param  {...any} args 
  */
 function loggingAspect(...args) {
+  check(args[0],args[1],args[2])
   if (this !== window) {
     if (this.constructor.name !== "Object") {
       console.log("Class : " + this.constructor.name);
@@ -72,7 +73,7 @@ function loggingAspect(...args) {
  * Example function to be run after the return of another function
  * @param {any} value 
  */
-function printTypeOfReturnedValueAspect(value) {
+function loggingReturnedValueAspect(value) {
   console.log("Returned : " + value);
 }
 
@@ -88,7 +89,7 @@ function injectNamespace(namespaceObject) {
       "inject",
       "addLoggingToNamespace",
       "getLoggableFunction",
-      "printTypeOfReturnedValueAspect",
+      "loggingReturnedValueAspect",
       "loggingAspect",
       "replaceMethod",
       "getMethods",
@@ -96,9 +97,18 @@ function injectNamespace(namespaceObject) {
       "toString"
     ].includes(potentialFunction.name)) {
       replaceMethod(namespaceObject, name, loggingAspect, "before");
-      replaceMethod(namespaceObject, name, printTypeOfReturnedValueAspect, "after")
+      replaceMethod(namespaceObject, name, loggingReturnedValueAspect, "after")
     }
   }
 };
 
 
+function startObserver() {
+  inject(Test.prototype, loggingAspect, "before")
+  inject(Test.prototype, loggingReturnedValueAspect, "afterReturning")
+  inject(document, loggingAspect, "before");
+  inject(document, loggingReturnedValueAspect, "after");
+  inject(Math, loggingAspect, "before");
+  inject(Math, loggingReturnedValueAspect, "after");
+  injectNamespace(globalThis);
+}
