@@ -7,9 +7,9 @@ const getMethods = (prototype) => {
   let properties = new Set();
   let currentObj = prototype;
   do {
-    Object.getOwnPropertyNames(currentObj).map(item => properties.add(item));
+    Object.getOwnPropertyNames(currentObj).map(item => properties.add(item))
   } while ((currentObj = Object.getPrototypeOf(currentObj)));
-  return [...properties.keys()].filter(item => typeof prototype[item] === 'function');
+  return [...properties.keys()].filter(item => typeof prototype[item] === 'function' && !["toString", "constructor"].includes(item));
 }
 
 /**
@@ -21,9 +21,9 @@ const getMethods = (prototype) => {
  */
 function replaceMethod(target, methodName, aspect, advice) {
   const originalCode = target[methodName];
-  target[methodName] = (...args) => {
+  target[`${methodName}`] = (...args) => {
     if (["before", "around"].includes(advice)) {
-      aspect.apply(target, args);
+      aspect.apply(target, [methodName, args]);
     }
     const returnedValue = originalCode.apply(target, args);
     if (["after", "around"].includes(advice)) {
@@ -55,8 +55,17 @@ function inject(target, aspect, advice) {
  * @param  {...any} args 
  */
 function loggingAspect(...args) {
-  console.log("== Calling the logger function ==");
-  console.log("Arguments received: " + args);
+  if (this !== window) {
+    if (this.constructor.name !== "Object") {
+      console.log("Class : " + this.constructor.name);
+    }
+    else {
+      console.log("Class : " + this.toString());
+    }
+  }
+  console.log("Function : " + args[0]);
+  args.shift()
+  console.log("Arguments received : [" + args + "]");
 }
 
 /**
@@ -64,41 +73,14 @@ function loggingAspect(...args) {
  * @param {any} value 
  */
 function printTypeOfReturnedValueAspect(value) {
-  console.log("Returned type: " + typeof value);
+  console.log("Returned : " + value);
 }
-
-var functionLogger = {};
-
-/**
- * Logs the function calls
- * @param {Function} func 
- * @param {String} name 
- * @returns 
- */
-functionLogger.getLoggableFunction = function (func, name) {
-  return function () {
-    check(func, name, arguments)
-    let f = {
-      signature: name + func.toString().substring(0, func.toString().indexOf(')') + 1),
-      name: name,
-      params: {}
-    };
-    let parameters = func.toString().match(/\(([^)]+)\)/)[1].replaceAll(' ', '').split(',');
-    for (var i = 0; i < arguments.length; i++) {
-      f['params'][parameters[i]] = arguments[i];
-    }
-
-    f['res'] = func.apply(this, arguments);
-    console.log(f);
-    return f['res']
-  }
-};
 
 /**
  * 
- * @param {namespaceObject} namespaceObject 
+ * @param {*} namespaceObject 
  */
-functionLogger.addLoggingToNamespace = function (namespaceObject) {
+function injectNamespace(namespaceObject) {
   for (var name in namespaceObject) {
     var potentialFunction = namespaceObject[name];
     if (Object.prototype.toString.call(potentialFunction) === '[object Function]' && ![
@@ -109,9 +91,14 @@ functionLogger.addLoggingToNamespace = function (namespaceObject) {
       "printTypeOfReturnedValueAspect",
       "loggingAspect",
       "replaceMethod",
-      "getMethods"
+      "getMethods",
+      "injectFunctionPrototype",
+      "toString"
     ].includes(potentialFunction.name)) {
-      namespaceObject[name] = functionLogger.getLoggableFunction(potentialFunction, name);
+      replaceMethod(namespaceObject, name, loggingAspect, "before");
+      replaceMethod(namespaceObject, name, printTypeOfReturnedValueAspect, "after")
     }
   }
 };
+
+

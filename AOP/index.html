@@ -17,6 +17,12 @@
 <script src="teacher.js"></script>
 <script src="observer.js"></script>
 <script src="specialist.js"></script>
-<script>functionLogger.addLoggingToNamespace(window);</script>
+<script>
+    inject(document, loggingAspect, "before");
+    inject(document, printTypeOfReturnedValueAspect, "after");
+    inject(Math, loggingAspect, "before");
+    inject(Math, printTypeOfReturnedValueAspect, "after");
+    injectNamespace(globalThis);
+</script>
 
 </html>
