@@ -101,7 +101,7 @@ function injectNamespace(namespaceObject) {
       "setTimeout"
     ].includes(potentialFunction.name)) {
       replaceMethod(namespaceObject, name, loggingAspect, "before");
-      replaceMethod(namespaceObject, name, loggingReturnedValueAspect, "after")
+      replaceMethod(namespaceObject, name, loggingReturnedValueAspect, "afterReturning")
     }
   }
 };
@@ -113,8 +113,8 @@ function startObserver() {
   inject(Test.prototype, loggingAspect, "before")
   inject(Test.prototype, loggingReturnedValueAspect, "afterReturning")
   inject(document, loggingAspect, "before");
-  inject(document, loggingReturnedValueAspect, "after");
+  inject(document, loggingReturnedValueAspect, "afterReturning");
   inject(Math, loggingAspect, "before");
-  inject(Math, loggingReturnedValueAspect, "after");
+  inject(Math, loggingReturnedValueAspect, "afterReturning");
   injectNamespace(globalThis);
 }
