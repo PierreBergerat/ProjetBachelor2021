@@ -21,7 +21,7 @@ const getMethods = (prototype) => {
  */
 function replaceMethod(target, methodName, aspect, advice) {
   const originalCode = target[methodName];
-  target[`${methodName}`] = (...args) => {
+  target[methodName] = (...args) => {
     if (["before", "around"].includes(advice)) {
       aspect.apply(target, [originalCode, methodName, args]);
     }
@@ -31,9 +31,8 @@ function replaceMethod(target, methodName, aspect, advice) {
     }
     if ("afterReturning" == advice) {
       return aspect.apply(target, [returnedValue]);
-    } else {
-      return returnedValue;
     }
+    return returnedValue;
   }
 }
 
@@ -56,17 +55,19 @@ function inject(target, aspect, advice) {
  */
 function loggingAspect(...args) {
   check(args[0], args[1], args[2])
+  console.log("====Observer====");
   if (this !== window) {
     if (this.constructor.name !== "Object") {
-      console.log("Class : " + this.constructor.name);
+      console.log(`Class : ${this.constructor.name}`);
     }
     else {
-      console.log("Class : " + this.toString());
+      console.log(`Class : ${this.toString()}`);
     }
   }
-  console.log("Function : " + args[0]);
+  console.log(`Function : ${args[0]}`);
   args.shift()
-  console.log("Arguments received : [" + args + "]");
+  args.shift()
+  console.log(`Arguments received : [${args}]`);
 }
 
 /**
@@ -74,7 +75,7 @@ function loggingAspect(...args) {
  * @param {any} value 
  */
 function loggingReturnedValueAspect(value) {
-  console.log("Returned : " + value);
+  console.log(`Returned : ${value}`);
 }
 
 /**
@@ -94,7 +95,10 @@ function injectNamespace(namespaceObject) {
       "replaceMethod",
       "getMethods",
       "injectFunctionPrototype",
-      "toString"
+      "toString",
+      "setInterval",
+      "wait",
+      "setTimeout"
     ].includes(potentialFunction.name)) {
       replaceMethod(namespaceObject, name, loggingAspect, "before");
       replaceMethod(namespaceObject, name, loggingReturnedValueAspect, "after")
@@ -102,7 +106,9 @@ function injectNamespace(namespaceObject) {
   }
 };
 
-
+/**
+ * 
+ */
 function startObserver() {
   inject(Test.prototype, loggingAspect, "before")
   inject(Test.prototype, loggingReturnedValueAspect, "afterReturning")

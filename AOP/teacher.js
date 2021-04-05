@@ -8,9 +8,11 @@ var shouldDisplayImplementation = true
  * @returns 
  */
 function check(func, name, args) {
-    console.log(name + '(' + args + ')');
+    console.groupCollapsed("====Teacher====");
+    console.log(`${name}(${args})`);
     if (shouldDisplayImplementation) {
-        console.log(func.toString());
+        console.log(`${func.toString()}`);
     }
-    return;
+    console.groupEnd()
+    return
 }

@@ -14,6 +14,7 @@ const run = () => {
  * @returns a sorted copy of a
  */
 function bubble_Sort(a) {
+    console.log("bubbleSort");
     var swapp;
     var n = a.length - 1;
     var x = a;
@@ -39,6 +40,7 @@ function bubble_Sort(a) {
  * @returns 
  */
 function isSmaller(a, b) {
+    console.log("isSmaller");
     return a < b;
 }
 
@@ -50,6 +52,7 @@ class Test {
      * Logs a friendly message
      */
     greets() {
+        console.log("greets");
         console.log("Hi");
     }
 }
