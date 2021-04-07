@@ -54,7 +54,7 @@ function inject(target, aspect, advice) {
  * @param  {...any} args 
  */
 function loggingAspect(...args) {
-  check(args[0], args[1], args[2])
+  log(args[0], args[1], args[2])
   console.log("====Observer====");
   if (this !== window) {
     if (this.constructor.name !== "Object") {
@@ -75,6 +75,12 @@ function loggingAspect(...args) {
  * @param {any} value 
  */
 function loggingReturnedValueAspect(value) {
+  if (value != undefined) {
+    log(value)
+  }
+  else {
+    log("undefined")
+  }
   console.log(`Returned : ${value}`);
   return value
 }
@@ -100,7 +106,8 @@ function injectNamespace(namespaceObject) {
       "setInterval",
       "wait",
       "setTimeout",
-      "check"
+      "log",
+      "display"
     ].includes(potentialFunction.name)) {
       replaceMethod(namespaceObject, name, loggingAspect, "before");
       replaceMethod(namespaceObject, name, loggingReturnedValueAspect, "afterReturning")
