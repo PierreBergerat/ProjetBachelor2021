@@ -1,13 +1,11 @@
-var logs = []
-var curr = 0
-var isFirstTimeDisplayed = true
+var logs = [] // container for the logs
+var curr = -1 // currently displayed log index
 const displayContainer = document.getElementById('display')
 /**
  * Check will be able to verify the values/names/code of the current function and to interrupt it or react accordingly to the values read
- * @param {Function} func 
- * @param {String} name 
- * @param {IArguments} args 
- * @returns 
+ * @param {Function} func - The function that has been called
+ * @param {String} name - The name of the function
+ * @param {IArguments} args - the function's arguments
  */
 function log(func, name, args) {
     if (name && args) {
@@ -21,18 +19,21 @@ function log(func, name, args) {
         }
 
     }
-    return
 }
 
+/**
+ * Displays the current log to the screen in a preformated placeholder
+ * @param {Boolean} shouldGoForward - Indicates whether the display should show the next or the previous state
+ */
 function display(shouldGoForward = true) {
-    if (!isFirstTimeDisplayed) {
+    if (curr != -1) {
         if (shouldGoForward) {
             curr < (logs.length - 1) ? curr += 1 : curr;
         } else {
             curr > 0 ? curr -= 1 : curr;
         }
     } else {
-        isFirstTimeDisplayed = false;
+        curr++;
     }
     displayContainer.innerHTML = ""
     for (let elem in logs[curr]) {

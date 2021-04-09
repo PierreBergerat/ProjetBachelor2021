@@ -1,5 +1,5 @@
 /**
- * 
+ * Returns the methods of an object's prototype
  * @param {prototype} prototype - the class prototype (passed via CLASSNAME.prototype) to target 
  * @returns - all the methods presents in the prototype
  */
@@ -14,10 +14,10 @@ const getMethods = (prototype) => {
 
 /**
  * Augments a default method with another
- * @param {prototype} target 
- * @param {Function} methodName 
- * @param {Function} aspect 
- * @param {String} advice 
+ * @param {prototype} target - Object that possesses the to be replaced method
+ * @param {Function} methodName - The method to replace
+ * @param {Function} aspect - Function to add to the method
+ * @param {"before"|"after"|"around"|"afterReturning"} advice - Where to add the method.
  */
 function replaceMethod(target, methodName, aspect, advice) {
   const originalCode = target[methodName];
@@ -37,10 +37,10 @@ function replaceMethod(target, methodName, aspect, advice) {
 }
 
 /**
- * 
- * @param {prototype} target 
- * @param {Function} aspect 
- * @param {String} advice 
+ * Injects a function into another
+ * @param {prototype} target - Object that possesses the to be replaced method
+ * @param {Function} aspect - Function to add to the method
+ * @param {"before"|"after"|"around"|"afterReturning"} advice - Where to add the method
  */
 function inject(target, aspect, advice) {
   const methods = getMethods(target);
@@ -50,8 +50,8 @@ function inject(target, aspect, advice) {
 }
 
 /**
- * Example function to be run before another
- * @param  {...any} args 
+ * Example function to be run before another. This one logs everything into the console and calls the teacher's "log()" function.
+ * @param  {...any} args - arguments passed to the initial function
  */
 function loggingAspect(...args) {
   log(args[0], args[1], args[2])
@@ -72,7 +72,7 @@ function loggingAspect(...args) {
 
 /**
  * Example function to be run after the return of another function
- * @param {any} value 
+ * @param {any} value - The returned value of the initial method
  */
 function loggingReturnedValueAspect(value) {
   if (value != undefined) {
@@ -86,8 +86,8 @@ function loggingReturnedValueAspect(value) {
 }
 
 /**
- * 
- * @param {*} namespaceObject 
+ * Injects every method of a namespace
+ * @param {namespaceObject} namespaceObject - The namespaceObject whose functions will be augmented
  */
 function injectNamespace(namespaceObject) {
   for (var name in namespaceObject) {
@@ -116,7 +116,7 @@ function injectNamespace(namespaceObject) {
 };
 
 /**
- * 
+ * Starts the observation of the methods and functions calls
  */
 function startObserver() {
   inject(Test.prototype, loggingAspect, "before")
