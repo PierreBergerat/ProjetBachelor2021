@@ -55,19 +55,19 @@ function inject(target, aspect, advice) {
  */
 function loggingAspect(...args) {
   log(args[0], args[1], args[2])
-  console.log("====Observer====");
+  // console.log("====Observer====");
   if (this !== window) {
     if (this.constructor.name !== "Object") {
-      console.log(`Class : ${this.constructor.name}`);
+      // console.log(`Class : ${this.constructor.name}`);
     }
     else {
-      console.log(`Class : ${this.toString()}`);
+      // console.log(`Class : ${this.toString()}`);
     }
   }
-  console.log(`Function : ${args[0]}`);
+  // console.log(`Function : ${args[0]}`);
   args.shift()
   args.shift()
-  console.log(`Arguments received : [${args}]`);
+  // console.log(`Arguments received : [${args}]`);
 }
 
 /**
@@ -81,7 +81,7 @@ function loggingReturnedValueAspect(value) {
   else {
     log("undefined")
   }
-  console.log(`Returned : ${value}`);
+  // console.log(`Returned : ${value}`);
   return value
 }
 
@@ -119,8 +119,8 @@ function injectNamespace(namespaceObject) {
  * Starts the observation of the methods and functions calls
  */
 function startObserver() {
-  inject(Test.prototype, loggingAspect, "before")
-  inject(Test.prototype, loggingReturnedValueAspect, "afterReturning")
+  // inject(Test.prototype, loggingAspect, "before")
+  // inject(Test.prototype, loggingReturnedValueAspect, "afterReturning")
   inject(Math, loggingAspect, "before");
   inject(Math, loggingReturnedValueAspect, "afterReturning");
   injectNamespace(globalThis);

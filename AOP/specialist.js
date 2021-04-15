@@ -4,8 +4,6 @@
 const run = () => {
     var arrayToSort = [12, 345, 4, 546, 122, 84, 98, 64, 9, 1, 3223, 455, 23, 234, 213]
     bubble_Sort(arrayToSort)
-    var t = new Test()
-    t.greets()
 }
 
 /**
@@ -45,17 +43,4 @@ function swap(a, i) {
     a[i] = a[i + 1];
     a[i + 1] = temp;
     return a
-}
-
-/**
- * Test class. Also here for demonstration
- */
-class Test {
-    /**
-     * Logs a friendly message
-     */
-    greets() {
-        console.log("greets");
-        console.log("Hi");
-    }
 }
