@@ -56,7 +56,7 @@ function inject(target, aspect, advice) {
 function loggingAspect(...args) {
   log(args[0], args[1], args[2])
   // console.log("====Observer====");
-  if (this !== window) {
+  /*if (this !== window) {
     if (this.constructor.name !== "Object") {
       // console.log(`Class : ${this.constructor.name}`);
     }
@@ -67,7 +67,7 @@ function loggingAspect(...args) {
   // console.log(`Function : ${args[0]}`);
   args.shift()
   args.shift()
-  // console.log(`Arguments received : [${args}]`);
+  // console.log(`Arguments received : [${args}]`);*/
 }
 
 /**

@@ -2,6 +2,7 @@ var logs = [] // container for the logs
 var curr = -1 // currently displayed log index
 const displayContainer = document.getElementById('display')
 const algorithm = document.getElementById('algorithm')
+
 /**
  * Check will be able to verify the values/names/code of the current function and to interrupt it or react accordingly to the values read
  * @param {Function} func - The function that has been called
@@ -10,15 +11,14 @@ const algorithm = document.getElementById('algorithm')
  */
 function log(func, name, args) {
     if (name && args) {
-        logs.push([name.toString() + '()', args.toString(), func.toString()])
+        logs.push([name.toString() + '()', JSON.parse(JSON.stringify(args)), func.toString()])
     } else {
         for (let i = logs.length - 1; i >= 0; i--) {
             if (logs[i].length != 4) {
-                logs[i].push(func.toString())
+                logs[i].push(JSON.parse(JSON.stringify(func)))
                 break;
             }
         }
-
     }
 }
 
@@ -37,7 +37,13 @@ function display(shouldGoForward = true) {
         curr++;
         algorithm.innerHTML = `<pre>${logs[0][2]}</pre>`
     }
-    algorithm.innerHTML = '<pre>' + algorithm.innerHTML.replaceAll('<span>', '').replaceAll('</span>', '').replaceAll('<pre>', '').replaceAll('</pre>', '').split(logs[curr][0].replaceAll(')', '')).join(`</pre><span>${logs[curr][0].replaceAll('()', '')}</span><pre>(`) + '</pre>'
+    algorithm.innerHTML = '<pre>' + algorithm.innerHTML
+        .replaceAll('<span>', '')
+        .replaceAll('</span>', '')
+        .replaceAll('<pre>', '')
+        .replaceAll('</pre>', '')
+        .split(logs[curr][0].replaceAll(')', ''))
+        .join(`</pre><span>${logs[curr][0].replaceAll('()', '')}</span><pre>(`) + '</pre>'
     displayContainer.innerHTML = ""
     for (let elem in logs[curr]) {
         let p = document.createElement('pre')
@@ -58,9 +64,11 @@ function display(shouldGoForward = true) {
             default:
                 break;
         }
-        p.innerHTML += logs[curr][elem]
-
+        if (elem % 2 != 0) {
+            p.innerHTML += JSON.stringify(logs[curr][elem])
+        } else {
+            p.innerHTML += logs[curr][elem]
+        }
         displayContainer.appendChild(p)
     }
-    // console.log(algorithm.innerText == logs[curr][0].replaceAll('\r', ''));
 }
