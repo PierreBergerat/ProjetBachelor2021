@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 
 <head>
     <meta charset="UTF-8">
@@ -13,22 +13,16 @@
 </head>
 
 <body>
-    <!--
-    <h1 style="text-align: center;">AOP in javascript</h1>
-    <p style="text-align: center;">Press F12 to open console and use the "run()" command to start the algorithm, the
-        listener and the "teacher"</p>
-    -->
     <div class="container">
         <div class="row">
             <div class="col-lg-2">
-                <div class="btn-group">
-                    <button class="btn btn-primary" onclick="display(false)">Précédent</button>
-                    <button class="btn btn-primary" onclick="display(true)">Suivant</button>
-                </div>
+                <button class="btn btn-primary" onclick="display(false)">Précédent</button>
+                <button class="btn btn-primary" onclick="display(true)">Suivant</button>
             </div>
         </div>
         <div class="row">
             <div class="col-lg-6">
+                <div id="table"></div>
                 <div id="display" class="m-0"></div>
             </div>
             <div class="col-lg-6">
@@ -41,7 +35,7 @@
 <script src="teacher.js"></script>
 <script src="observer.js"></script>
 <script src="specialist.js"></script>
-<script>startObserver(); run(); display()</script>
+<script>startObserver(); run(); display();</script>
 
 
 </html>

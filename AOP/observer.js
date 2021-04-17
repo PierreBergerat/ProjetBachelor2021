@@ -107,7 +107,9 @@ function injectNamespace(namespaceObject) {
       "wait",
       "setTimeout",
       "log",
-      "display"
+      "display",
+      "createArray",
+      "updateObjects"
     ].includes(potentialFunction.name)) {
       replaceMethod(namespaceObject, name, loggingAspect, "before");
       replaceMethod(namespaceObject, name, loggingReturnedValueAspect, "afterReturning")

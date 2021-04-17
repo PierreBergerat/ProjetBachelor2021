@@ -5,3 +5,26 @@
 #algorithm span {
     background-color: yellow;
 }
+
+@import url('https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css');
+table, thead, tr, tbody, th, td {
+    text-align: center;
+}
+
+.table td {
+    text-align: center;
+    border: 1px solid black;
+}
+
+table td.selected {
+    background-color: cornflowerblue;
+}
+
+table {
+    table-layout: fixed;
+    word-wrap: break-word;
+}
+
+table th, table td {
+    overflow: hidden;
+}
