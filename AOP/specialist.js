@@ -8,24 +8,24 @@ const run = () => {
 
 /**
  * Sorts using bubble sort algorithm
- * @param {Array[Number]} a - the array to sort
+ * @param {Array[Number]} array - the array to sort
  * @returns a sorted copy of a
  */
-function bubble_Sort(a) {
+function bubble_Sort(array) {
     var hasSwapped;
-    var n = a.length - 1;
-    var x = a;
+    var n = array.length - 1;
+    var sortedArray = array;
     do {
         hasSwapped = false;
         for (var i = 0; i < n; i++) {
-            if (isSmaller(x[i], x[i + 1])) {
-                swap(x, i)
+            if (isSmaller(sortedArray[i], sortedArray[i + 1])) {
+                swap(sortedArray, i)
                 hasSwapped = true;
             }
         }
         n--;
     } while (hasSwapped);
-    return x;
+    return sortedArray;
 }
 
 /**
