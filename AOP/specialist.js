@@ -12,19 +12,19 @@ const run = () => {
  * @returns a sorted copy of a
  */
 function bubble_Sort(a) {
-    var swapp;
+    var hasSwapped;
     var n = a.length - 1;
     var x = a;
     do {
-        swapp = false;
+        hasSwapped = false;
         for (var i = 0; i < n; i++) {
             if (isSmaller(x[i], x[i + 1])) {
                 swap(x, i)
-                swapp = true;
+                hasSwapped = true;
             }
         }
         n--;
-    } while (swapp);
+    } while (hasSwapped);
     return x;
 }
 
