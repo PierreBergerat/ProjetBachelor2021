@@ -109,7 +109,9 @@ function injectNamespace(namespaceObject) {
       "log",
       "display",
       "createArray",
-      "updateObjects"
+      "updateObjects",
+      "play",
+      "clearInterval"
     ].includes(potentialFunction.name)) {
       replaceMethod(namespaceObject, name, loggingAspect, "before");
       replaceMethod(namespaceObject, name, loggingReturnedValueAspect, "afterReturning")
@@ -123,8 +125,8 @@ function injectNamespace(namespaceObject) {
 function startObserver() {
   // inject(Test.prototype, loggingAspect, "before")
   // inject(Test.prototype, loggingReturnedValueAspect, "afterReturning")
-  inject(Math, loggingAspect, "before");
-  inject(Math, loggingReturnedValueAspect, "afterReturning");
+  //inject(Math, loggingAspect, "before");
+  //inject(Math, loggingReturnedValueAspect, "afterReturning");
   injectNamespace(globalThis);
   // inject(document, loggingAspect, "before");
   // inject(document, loggingReturnedValueAspect, "afterReturning");
