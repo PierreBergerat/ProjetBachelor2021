@@ -80,7 +80,6 @@ class TeacherArray extends Item {
         for (let i in this.referenceArray) {
             this.array.children[0].children[i].innerText = this.referenceArray[i];
         }
-
     }
 
     /**
@@ -98,7 +97,7 @@ class TeacherArray extends Item {
         let values = [...this.array.children[0].children].map(x => { return x.innerText });
         let log = JSON.parse(JSON.stringify(currentLog))
         if (!isGoingForward) {
-            log[1].reverse()
+            log[1].reverse();
         }
         for (let i = 0; i < values.length; i++) {
             if (values[i] == log[1][0] && values[i + 1] == log[1][1]) {
@@ -107,7 +106,7 @@ class TeacherArray extends Item {
                 return
             }
         }
-        log[1].reverse()
+        log[1].reverse();
         for (let i = 0; i < values.length; i++) {
             if (values[i] == log[1][0] && values[i + 1] == log[1][1]) {
                 this.array.children[0].children[i].classList.add('selected-red');
