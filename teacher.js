@@ -5,115 +5,23 @@ const algorithm = document.getElementById('algorithm');
 var actionListeners = new Map();
 var afterListeners = new Map();
 
-/**
- * 
- * @param {*} curr 
- */
-function updateObjects(curr, isGoingForward) {
-    if (curr > 0) {
-        lastLog = logs[curr - 1];
-        for (let obj of afterListeners.get(lastLog[0].split('()')[0]) || []) {
-            if (obj[0][obj[1]]) {
-                obj[0][obj[1]](lastLog, isGoingForward);
-            } else {
-                obj[1].call(obj[0], lastLog, isGoingForward);
-            }
-        }
-    }
-    currentLog = logs[curr];
-    for (let obj of actionListeners.get(currentLog[0].split('()')[0]) || []) {
-        if (obj[0][obj[1]]) {
-            obj[0][obj[1]](currentLog, isGoingForward);
-        } else {
-            obj[1].call(obj[0], currentLog, isGoingForward);
-        }
-    }
-}
+class Utils {
+    static findSubArray(array, subarray) {
+        var i = 0,
+            sl = subarray.length,
+            l = array.length + 1 - sl;
 
-/**
- * 
- */
-class Item {
-    constructor(container, listensTo, AfterActions) {
-        this.container = container;
-        for (let [funcName, func] of listensTo) {
-            actionListeners.get(funcName)?.push([this, func]) || actionListeners.set(funcName, [[this, func]]);
+        loop: for (; i < l; i++) {
+            for (var j = 0; j < sl; j++)
+                if (array[i + j] !== subarray[j])
+                    continue loop;
+            return i;
         }
-        for (let [funcName, func] of AfterActions) {
-            afterListeners.get(funcName)?.push([this, func]) || afterListeners.set(funcName, [[this, func]]);
-        }
-    }
-}
-
-/**
- * 
- */
-class TeacherArray extends Item {
-    constructor(referenceArray, container, listensTo, AfterActions) {
-        super(container, listensTo, AfterActions);
-        this.referenceArray = referenceArray;
-        this.array = document.createElement('table');
-        this.display();
+        return -1;
     }
 
-    /**
-     * 
-     */
-    display() {
-        this.array.classList.add('table');
-        let row = document.createElement('tr');
-        for (let i in this.referenceArray) {
-            let element = document.createElement('td');
-            element.innerText = this.referenceArray[i];
-            row.appendChild(element);
-        }
-        this.array.appendChild(row);
-        document.getElementById(this.container).appendChild(this.array);
-    }
-
-    /**
-     * 
-     * @param {*} currentLog 
-     */
-    updateTable(currentLog) {
-        this.referenceArray = currentLog[3];
-        for (let i in this.referenceArray) {
-            this.array.children[0].children[i].innerText = this.referenceArray[i];
-        }
-    }
-
-    /**
-     * 
-     * @param {*} currentLog 
-     */
-    swapHighlight(currentLog) {
-        [...this.array.children[0].children].forEach(elem => { elem.classList.remove('selected'); elem.classList.remove('selected-red') });
-        this.array.children[0].children[currentLog[1][1]].classList.add('selected');
-        this.array.children[0].children[currentLog[1][1] + 1].classList.add('selected');
-    }
-
-    isSmallerHighlight(currentLog, isGoingForward) {
-        [...this.array.children[0].children].forEach(elem => { elem.classList.remove('selected'); elem.classList.remove('selected-red') });
-        let values = [...this.array.children[0].children].map(x => { return x.innerText });
-        let log = JSON.parse(JSON.stringify(currentLog))
-        if (!isGoingForward) {
-            log[1].reverse();
-        }
-        for (let i = 0; i < values.length; i++) {
-            if (values[i] == log[1][0] && values[i + 1] == log[1][1]) {
-                this.array.children[0].children[i].classList.add('selected-red');
-                this.array.children[0].children[i + 1].classList.add('selected-red');
-                return
-            }
-        }
-        log[1].reverse();
-        for (let i = 0; i < values.length; i++) {
-            if (values[i] == log[1][0] && values[i + 1] == log[1][1]) {
-                this.array.children[0].children[i].classList.add('selected-red');
-                this.array.children[0].children[i + 1].classList.add('selected-red');
-                return
-            }
-        }
+    static deepCopy(o) {
+        return JSON.parse(JSON.stringify(o))
     }
 }
 
@@ -136,6 +44,105 @@ function log(func, name, args) {
     }
 }
 
+function updateObjects(curr, isGoingForward) {
+    if (curr > 0) {
+        lastLog = logs[curr - 1];
+        for (let obj of afterListeners.get(lastLog[0].split('()')[0]) || []) {
+            if (obj[0][obj[1]]) {
+                obj[0][obj[1]](lastLog, isGoingForward);
+            } else {
+                obj[1].call(this, obj[0], lastLog, isGoingForward);
+            }
+        }
+    }
+    currentLog = logs[curr];
+    for (let obj of actionListeners.get(currentLog[0].split('()')[0]) || []) {
+        if (obj[0][obj[1]]) {
+            obj[0][obj[1]](currentLog, isGoingForward);
+        } else {
+            obj[1].call(this, obj[0], currentLog, isGoingForward);
+        }
+    }
+}
+
+class TItem {
+    constructor(before, after) {
+        this.setBeforeFunction(before);
+        this.setAfterFunction(after);
+    }
+
+    setBeforeFunction(beforeAction) {
+        if (!beforeAction) {
+            return;
+        }
+        for (let [funcName, func] of beforeAction) {
+            actionListeners.get(funcName)?.push([this, func]) || actionListeners.set(funcName, [[this, func]]);
+        }
+    }
+
+    setAfterFunction(afterAction) {
+        if (!afterAction) {
+            return;
+        }
+        for (let [funcName, func] of afterAction) {
+            afterListeners.get(funcName)?.push([this, func]) || afterListeners.set(funcName, [[this, func]]);
+        }
+    }
+
+    runBeforeFunction(beforeAction) {
+        for (let [funcName, func] of beforeAction) {
+            actionListeners.get(funcName)?.push([this, func]) || actionListeners.set(funcName, [[this, func]]);
+        }
+    }
+
+    runAfterFunction(afterAction) {
+        for (let [funcName, func] of afterAction) {
+            afterListeners.get(funcName)?.push([this, func]) || afterListeners.set(funcName, [[this, func]]);
+        }
+    }
+}
+
+class TArray extends TItem {
+    constructor(refArray, container, beforeAction, afterAction) {
+        super(beforeAction, afterAction)
+        this.refArray = refArray;
+        this.screenArray = document.createElement('table')
+        let row = document.createElement('tr');
+        for (let i in this.refArray) {
+            let element = document.createElement('td');
+            element.innerText = this.refArray[i];
+            row.appendChild(element);
+        }
+        this.screenArray.appendChild(row);
+        document.getElementById(container).appendChild(this.screenArray);
+        this.screenArray.classList.add('table')
+    }
+
+    updateArray(newArr) {
+        this.refArray = newArr
+        let values = this.screenArray.getElementsByTagName('td');
+        for (let i in this.refArray) {
+            values[i].innerText = this.refArray[i]
+        }
+    }
+
+    displayArray() {
+        console.log("Mon array est beau : " + this.refArray);
+    }
+
+    select(indexes, color) {
+        let className = color ? `selected-${color}` : 'selected';
+        Array.from(this.screenArray.querySelectorAll("[class^=selected]")).forEach(elem => { console.log(elem); elem.classList.remove('selected', 'selected-red') })
+        let items = this.screenArray.getElementsByTagName('td')
+        if (typeof indexes === 'number') {
+            indexes = [indexes]
+        }
+        for (let index of indexes) {
+            items[index].classList.add(className)
+        }
+    }
+}
+
 /**
  * Displays the current log to the screen in a preformated placeholder
  * @param {Boolean} shouldGoForward - Indicates whether the display should show the next or the previous state
@@ -148,15 +155,33 @@ function display(shouldGoForward = true) {
             curr > 0 ? curr -= 1 : curr;
         }
     } else {// Init
-        new TeacherArray([12, 345, 4, 546, 122, 84, 98, 64, 9, 1, 3223, 4891, 455, 23, 234, 213],
+        new TArray([12, 345, 4, 546, 122, 84, 98, 64, 9, 1, 3223, 4891, 455, 23, 234, 213],
             'table',
             [
-                ['swap', 'swapHighlight'],
-                ['isSmaller', 'isSmallerHighlight']
+                [
+                    'swap', (that, log) => {
+                        that.select([log[1][1], log[1][1] + 1], 'red')
+                    }
+                ],
+                [
+                    'isSmaller', (that, log) => {
+                        let index = Utils.findSubArray(that.refArray, log[1])
+                        if (index == -1) {
+                            index = Utils.findSubArray(that.refArray, Utils.deepCopy(log[1]).reverse())
+                            that.select([index, index + 1])
+                        } else {
+                            that.select([index, index + 1])
+                        }
+                    }
+                ]
             ],
             [
-                ['swap', 'updateTable'],
-                ['isSmaller', 'updateTable']
+                [
+                    'swap', (that, log) => { that.updateArray(log[3]) }
+                ],
+                [
+                    'isSmaller', 'displayArray'
+                ]
             ]);
         curr++;
         algorithm.innerHTML = `<pre>${logs[0][2]}</pre>`;
@@ -189,11 +214,26 @@ function display(shouldGoForward = true) {
     }
 }
 
-function play() {
+function play(id) {
+    id = id.target ? id.target?.id : id;
+    let clickHandler = function () {
+        shouldRun = false
+    }
+    let shouldRun = true
+    let button = document.getElementById(id);
+    let textBackup = button.innerText;
+    button.innerText = "Stopper la séquence"
+    button.removeAttribute("onclick");
+    button.removeEventListener('click', play)
+    button.addEventListener('click', clickHandler)
+
     var intervalId = window.setInterval(function () {
         display(true);
-        if (curr == logs.length - 1) {
+        if (curr == logs.length - 1 || !shouldRun) {
             clearInterval(intervalId);
+            button.removeEventListener('click', clickHandler)
+            button.innerText = textBackup
+            button.addEventListener('click', play)
         }
     }, 500);
 }
