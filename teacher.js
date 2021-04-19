@@ -6,22 +6,32 @@ var actionListeners = new Map();
 var afterListeners = new Map();
 
 class Utils {
+    /**
+     * 
+     * @param {*} array 
+     * @param {*} subarray 
+     * @returns 
+     */
     static findSubArray(array, subarray) {
-        var i = 0,
-            sl = subarray.length,
-            l = array.length + 1 - sl;
-
+        var i = 0, sl = subarray.length, l = array.length + 1 - sl;
         loop: for (; i < l; i++) {
-            for (var j = 0; j < sl; j++)
-                if (array[i + j] !== subarray[j])
+            for (var j = 0; j < sl; j++) {
+                if (array[i + j] !== subarray[j]) {
                     continue loop;
+                }
+            }
             return i;
         }
         return -1;
     }
 
+    /**
+     * 
+     * @param {*} o 
+     * @returns 
+     */
     static deepCopy(o) {
-        return JSON.parse(JSON.stringify(o))
+        return JSON.parse(JSON.stringify(o));
     }
 }
 
@@ -44,6 +54,11 @@ function log(func, name, args) {
     }
 }
 
+/**
+ * 
+ * @param {*} curr 
+ * @param {*} isGoingForward 
+ */
 function updateObjects(curr, isGoingForward) {
     if (curr > 0) {
         lastLog = logs[curr - 1];
@@ -65,6 +80,9 @@ function updateObjects(curr, isGoingForward) {
     }
 }
 
+/**
+ * 
+ */
 class TItem {
     constructor(before, after) {
         this.setBeforeFunction(before);
@@ -102,11 +120,21 @@ class TItem {
     }
 }
 
+/**
+ * 
+ */
 class TArray extends TItem {
+    /**
+     * 
+     * @param {*} refArray 
+     * @param {*} container 
+     * @param {*} beforeAction 
+     * @param {*} afterAction 
+     */
     constructor(refArray, container, beforeAction, afterAction) {
-        super(beforeAction, afterAction)
+        super(beforeAction, afterAction);
         this.refArray = refArray;
-        this.screenArray = document.createElement('table')
+        this.screenArray = document.createElement('table');
         let row = document.createElement('tr');
         for (let i in this.refArray) {
             let element = document.createElement('td');
@@ -115,30 +143,44 @@ class TArray extends TItem {
         }
         this.screenArray.appendChild(row);
         document.getElementById(container).appendChild(this.screenArray);
-        this.screenArray.classList.add('table')
+        this.screenArray.classList.add('table');
     }
 
+    /**
+     * 
+     * @param {*} newArr 
+     */
     updateArray(newArr) {
-        this.refArray = newArr
+        this.refArray = newArr;
         let values = this.screenArray.getElementsByTagName('td');
         for (let i in this.refArray) {
-            values[i].innerText = this.refArray[i]
+            values[i].innerText = this.refArray[i];
         }
     }
 
+    /**
+     * 
+     */
     displayArray() {
         console.log("Mon array est beau : " + this.refArray);
     }
 
+    /**
+     * 
+     * @param {*} indexes 
+     * @param {*} color 
+     */
     select(indexes, color) {
         let className = color ? `selected-${color}` : 'selected';
-        Array.from(this.screenArray.querySelectorAll("[class^=selected]")).forEach(elem => { console.log(elem); elem.classList.remove('selected', 'selected-red') })
-        let items = this.screenArray.getElementsByTagName('td')
+        Array.from(this.screenArray.querySelectorAll("[class^=selected]")).forEach(elem => {
+            elem.classList.remove('selected', 'selected-red');
+        });
+        let items = this.screenArray.getElementsByTagName('td');
         if (typeof indexes === 'number') {
-            indexes = [indexes]
+            indexes = [indexes];
         }
         for (let index of indexes) {
-            items[index].classList.add(className)
+            items[index].classList.add(className);
         }
     }
 }
@@ -160,17 +202,17 @@ function display(shouldGoForward = true) {
             [
                 [
                     'swap', (that, log) => {
-                        that.select([log[1][1], log[1][1] + 1], 'red')
+                        that.select([log[1][1], log[1][1] + 1], 'red');
                     }
                 ],
                 [
                     'isSmaller', (that, log) => {
-                        let index = Utils.findSubArray(that.refArray, log[1])
+                        let index = Utils.findSubArray(that.refArray, log[1]);
                         if (index == -1) {
-                            index = Utils.findSubArray(that.refArray, Utils.deepCopy(log[1]).reverse())
-                            that.select([index, index + 1])
+                            index = Utils.findSubArray(that.refArray, Utils.deepCopy(log[1]).reverse());
+                            that.select([index, index + 1]);
                         } else {
-                            that.select([index, index + 1])
+                            that.select([index, index + 1]);
                         }
                     }
                 ]
@@ -214,26 +256,30 @@ function display(shouldGoForward = true) {
     }
 }
 
+/**
+ * 
+ * @param {*} id 
+ */
 function play(id) {
     id = id.target ? id.target?.id : id;
     let clickHandler = function () {
-        shouldRun = false
+        shouldRun = false;
     }
-    let shouldRun = true
+    let shouldRun = true;
     let button = document.getElementById(id);
     let textBackup = button.innerText;
-    button.innerText = "Stopper la séquence"
+    button.innerText = "Stopper la séquence";
     button.removeAttribute("onclick");
-    button.removeEventListener('click', play)
-    button.addEventListener('click', clickHandler)
+    button.removeEventListener('click', play);
+    button.addEventListener('click', clickHandler);
 
     var intervalId = window.setInterval(function () {
         display(true);
         if (curr == logs.length - 1 || !shouldRun) {
             clearInterval(intervalId);
-            button.removeEventListener('click', clickHandler)
-            button.innerText = textBackup
-            button.addEventListener('click', play)
+            button.removeEventListener('click', clickHandler);
+            button.innerText = textBackup;
+            button.addEventListener('click', play);
         }
     }, 500);
 }
