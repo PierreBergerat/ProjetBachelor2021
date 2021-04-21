@@ -4,8 +4,7 @@
  * @returns - all the methods presents in the prototype
  */
 const getMethods = (prototype) => {
-  let properties = new Set();
-  let currentObj = prototype;
+  let properties = new Set(), currentObj = prototype;
   do {
     Object.getOwnPropertyNames(currentObj).map(item => properties.add(item))
   } while ((currentObj = Object.getPrototypeOf(currentObj)));
@@ -55,19 +54,6 @@ function inject(target, aspect, advice) {
  */
 function loggingAspect(...args) {
   log(args[0], args[1], args[2])
-  // console.log("====Observer====");
-  /*if (this !== window) {
-    if (this.constructor.name !== "Object") {
-      // console.log(`Class : ${this.constructor.name}`);
-    }
-    else {
-      // console.log(`Class : ${this.toString()}`);
-    }
-  }
-  // console.log(`Function : ${args[0]}`);
-  args.shift()
-  args.shift()
-  // console.log(`Arguments received : [${args}]`);*/
 }
 
 /**
@@ -81,7 +67,6 @@ function loggingReturnedValueAspect(value) {
   else {
     log("undefined")
   }
-  // console.log(`Returned : ${value}`);
   return value
 }
 
@@ -93,25 +78,7 @@ function injectNamespace(namespaceObject) {
   for (var name in namespaceObject) {
     var potentialFunction = namespaceObject[name];
     if (Object.prototype.toString.call(potentialFunction) === '[object Function]' && ![
-      "check",
-      "inject",
-      "addLoggingToNamespace",
-      "getLoggableFunction",
-      "loggingReturnedValueAspect",
-      "loggingAspect",
-      "replaceMethod",
-      "getMethods",
-      "injectFunctionPrototype",
-      "toString",
-      "setInterval",
-      "wait",
-      "setTimeout",
-      "log",
-      "display",
-      "createArray",
-      "updateObjects",
-      "play",
-      "clearInterval"
+      "check", "inject", "addLoggingToNamespace", "getLoggableFunction", "loggingReturnedValueAspect", "loggingAspect", "replaceMethod", "getMethods", "injectFunctionPrototype", "toString", "setInterval", "wait", "setTimeout", "log", "display", "createArray", "updateObjects", "play", "clearInterval"
     ].includes(potentialFunction.name)) {
       replaceMethod(namespaceObject, name, loggingAspect, "before");
       replaceMethod(namespaceObject, name, loggingReturnedValueAspect, "afterReturning")
@@ -123,11 +90,5 @@ function injectNamespace(namespaceObject) {
  * Starts the observation of the methods and functions calls
  */
 function startObserver() {
-  // inject(Test.prototype, loggingAspect, "before")
-  // inject(Test.prototype, loggingReturnedValueAspect, "afterReturning")
-  //inject(Math, loggingAspect, "before");
-  //inject(Math, loggingReturnedValueAspect, "afterReturning");
   injectNamespace(globalThis);
-  // inject(document, loggingAspect, "before");
-  // inject(document, loggingReturnedValueAspect, "afterReturning");
 }
