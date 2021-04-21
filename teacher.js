@@ -43,11 +43,11 @@ class Utils {
  */
 function log(func, name, args) {
     if (name && args) {
-        logs.push([name.toString() + '()', JSON.parse(JSON.stringify(args)), func.toString()]);
+        logs.push([name.toString() + '()', Utils.deepCopy(args), func.toString()]);
     } else {
         for (let i = logs.length - 1; i >= 0; i--) {
             if (logs[i].length != 4) {
-                logs[i].push(JSON.parse(JSON.stringify(func)));
+                logs[i].push(Utils.deepCopy(func));
                 break;
             }
         }
@@ -162,7 +162,7 @@ class TArray extends TItem {
      * 
      */
     displayArray() {
-        console.log("Mon array est beau : " + this.refArray);
+        //console.log("Mon array est beau : " + this.refArray);
     }
 
     /**
