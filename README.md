@@ -1,5 +1,5 @@
 # AlgObserver.js
-<img src="https://badges.aleen42.com/src/javascript.svg">
+  [![JavaScript](https://img.shields.io/badge/JavaScript-ES2016+-blue?style=?style=plastic&logo=javascript&logoColor=F7DF1E)]() [![HTML](https://img.shields.io/badge/HTML-5-blue?style=?style=plastic&logo=html5)]() [![Bootstrap](https://img.shields.io/badge/Bootstrap-5.0-blue?style=?style=plastic&logo=bootstrap)]()
 
 ## Table des matières
 - [AlgObserver.js](#algobserverjs)
