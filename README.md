@@ -1,5 +1,6 @@
 # AlgObserver.js
-[![javascript](./src/javascript.svg)](https://badges.aleen42.com/src/javascript.svg)
+<img src="https://badges.aleen42.com/src/javascript.svg">
+
 ## Table des matières
 - [AlgObserver.js](#algobserverjs)
   - [Table des matières](#table-des-matières)
