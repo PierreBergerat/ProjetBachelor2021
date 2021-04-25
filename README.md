@@ -48,7 +48,7 @@ On imagine un spécialiste dans un domaine en train de travailler (ex : un ouvri
 ### 2.1 Specialist.js
 Le [Specialist](#21-specialistjs) contient un/des algorithme(s) (ici Bubble sort) dont les appels de fonctions vont être capturés par l'[Observer](#22-observerjs). La taille et la complexité de ce(s) dernier(s) n'ont a priori pas d'incidence sur le déroulement des événements.
 >Les algorithmes présents dans le spécialiste n'ont aucune dépendance vis à vis de l'[Observer](#22-observerjs) et du [Teacher](#23-teacherjs), si ce n'est que son exécution doit se faire après l'exécution de la fonction 
-startObserver() (cf. [Index](#24-indexhtml)).
+**startObserver** (cf. [Index](#24-indexhtml)).
 ```html
 <!--Index.html [ln 40]-->
 <script>
@@ -108,6 +108,64 @@ inject(document, loggingAspect, "before");
 inject(document, loggingReturnedValueAspect, "afterReturning");
 ```
 ### 3.2 TItem
+La classe **TItem** définie dans le [Teacher](#23-teacherjs) permet, par son extension, d'implémenter un système d'écouteur d'évènements. En effet, chaque classe étendant TItem (via *extends TItem*) devra impérativement appeler sa méthode **super** avec les paramètres indiquant les "Before" et "After" listeners.
+Ces derniers sont de forme :
+```js
+[
+  ['nomDeLaFonction', (that, log, isGoingForward) => {}],
+  ['nomDeLaFonction', (that, log, isGoingForward) => {}]
+]
+```
+soit un tableau de tableau de deux éléments organisés sont :
+1. {String} nomDeLaFonction - Le nom de la fonction à écouter (ex : "bubbleSort").
+1. Une fonction anonyme (de forme **()=>{}**) avec comme paramètres optionnels :
+   1. {Object} that - l'objet sur lequel le listener est appliqué, c'est-à-dire une instance d'une classe étendant TItem (par exemple TArray). On peut se servir de cet argument pour utiliser des méthodes internes à l'objet utiliser, par exemple la méthode **select** définie dans TArray.
+   2. {Array} log - l'appel de fonction construit [comme expliqué précédemment](#23-teacherjs).
+   3. {Boolean} isGoingForward - indique si la lecture du log courant se faire vers l'avant ou vers l'arrière (log suivant ou précédent). Plus généralement, ce booléen aura toujours la même valeur que celui passé en paramètres à **display**.
+
+Il est à noter que le nom des paramètres est ici complètement libre puisque les arguments seront toujours passés en paramètres dans le même ordre. Dès lors, on peut également se servir de la flexibilité inhérente aux fonctions JavaScript pour passer moins d'arguments selon les besoins.
+```js
+/* Exemples d'utilisations valides des Listeners */
+
+/*Les trois fonctions ci-dessous produiront le même résultat*/
+['bubbleSort', (that, log, isGoingForward) => {console.log(that)}]
+['bubbleSort', (that) => {console.log(that)}]
+['bubbleSort', (a) => {console.log(a)}]
+```
+Un cas pratique d'utilisation est disponible dans le [Teacher](#23-teacherjs).
+```js
+// teacher.js [Ln 200]
+...
+new TArray(..., ...,
+            [
+                [// Exécute la méthode display définie dans TArray lorsque swap est à l'écran
+                    'swap', (that, log) => {
+                        that.select([log[1][1], log[1][1] + 1], 'red');
+                    }
+                ],
+                [// Exécute la fonction indiquée lorsque isSmaller est à l'écran
+                    'isSmaller', (that, log) => {
+                        let index = Utils.findSubArray(that.refArray, log[1]);
+                        if (index == -1) {
+                            index = Utils.findSubArray(that.refArray, Utils.deepCopy(log[1]).reverse());
+                            that.select([index, index + 1]);
+                        } else {
+                            that.select([index, index + 1]);
+                        }
+                    }
+                ]
+            ],
+            [
+                [// Exécute la méthode updateArray définie dans TArray après que swap a été affiché
+                    'swap', (that, log) => { that.updateArray(log[3]) }
+                ],
+                [// Exécute la méthode displayArray définie dans TArray après que isSmaller a été affiché
+                    'isSmaller', 'displayArray'
+                ]
+            ]);
+...
+```
+On remarque que deux tableaux sont passés en arguments et que **super** prend également deux arguments. Le premier permet d'indiquer les fonctions qui devront être exécutée lorsque la fonction exécutée dans le log courant est affichée à l'écran et le second indique les fonctions qui devront être exécuté si la fonction exécutée dans le log précédent était celle indiquée en paramètres.
 ### 3.3 UpdateObjects
 ### 3.4 Display
 ## 4. Todo
