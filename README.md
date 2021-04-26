@@ -50,7 +50,7 @@ Le [Specialist](#21-specialistjs) contient un/des algorithme(s) (ici Bubble sort
 >Les algorithmes présents dans le spécialiste n'ont aucune dépendance vis à vis de l'[Observer](#22-observerjs) et du [Teacher](#23-teacherjs), si ce n'est que son exécution doit se faire après l'exécution de la fonction 
 **startObserver** (cf. [Index](#24-indexhtml)).
 ```html
-<!--Index.html [ln 40]-->
+<!-- Index.html [ln 40] -->
 <script>
     startObserver(); // Géré par Observer.js (cf. plus bas)
     run(); // Fonction permettant de lancer l'algorithme présent dans specialist.js
@@ -80,7 +80,7 @@ logs = [
     ...
 ]
 ```
-qui va permettre de parcourir les appels dans l'ordre grâce à un itérateur nommé **curr**. Ce fichier possède de plus les fonctions [display](#34-display) et [updateObjects]() qui permettent un affichage dynamique et personnalisé. Ces fonctions sont détaillées plus bas.
+qui va permettre de parcourir les appels dans l'ordre grâce à un itérateur nommé **curr**. Ce fichier possède de plus les fonctions [display](#34-display) et [updateObjects](#33-updateobjects) qui permettent un affichage dynamique et personnalisé. Ces fonctions sont détaillées plus bas.
 ### 2.4 Index.html
 [Index](#24-indexhtml) permet l'affichage de la page et coordonne les appels de fonctions envoyés aux différents autres fichiers.
 ## 3. Fonctionnement
@@ -108,7 +108,7 @@ inject(document, loggingAspect, "before");
 inject(document, loggingReturnedValueAspect, "afterReturning");
 ```
 ### 3.2 TItem
-La classe **TItem** définie dans le [Teacher](#23-teacherjs) permet, par son extension, d'implémenter un système d'écouteur d'évènements. En effet, chaque classe étendant TItem (via *extends TItem*) devra impérativement appeler sa méthode **super** avec les paramètres indiquant les "Before" et "After" listeners.
+La classe **TItem** définie dans le [Teacher](#23-teacherjs) permet, par son extension, d'implémenter un système d'écouteur d'évènements qui autorise l'écoute du nom de la fonction actuellement affichée (ou simplement chargée). En effet, chaque classe étendant TItem (via *extends TItem*) devra impérativement appeler sa méthode **super** avec les paramètres indiquant les "Before" et "After" listeners.
 Ces derniers sont de forme :
 ```js
 [
@@ -127,7 +127,7 @@ Il est à noter que le nom des paramètres est ici complètement libre puisque l
 ```js
 /* Exemples d'utilisations valides des Listeners */
 
-/*Les trois fonctions ci-dessous produiront le même résultat*/
+/* Les trois fonctions ci-dessous produiront le même résultat */
 ['bubbleSort', (that, log, isGoingForward) => {console.log(that)}]
 ['bubbleSort', (that) => {console.log(that)}]
 ['bubbleSort', (a) => {console.log(a)}]
@@ -165,9 +165,83 @@ new TArray(..., ...,
             ]);
 ...
 ```
+```js
+// teacher.js [Ln 126]
+class TArray extends TItem {
+  ...
+constructor(refArray, container, beforeAction, afterAction) {
+  super(beforeAction, afterAction);
+  ...
+}
+```
 On remarque que deux tableaux sont passés en arguments et que **super** prend également deux arguments. Le premier permet d'indiquer les fonctions qui devront être exécutée lorsque la fonction exécutée dans le log courant est affichée à l'écran et le second indique les fonctions qui devront être exécuté si la fonction exécutée dans le log précédent était celle indiquée en paramètres.
 ### 3.3 UpdateObjects
+Pour mettre à jour les objets, c'est-à-dire pour déclencher les triggers précédemment ajoutés, il faut que la fonction **UpdateObjects** soit exécutée. Celle-ci va tout d'abord lancer les méthodes qui ont été passées en tant que afterListener avec en paramètres le journal d'appel de fonction au temps t - 1, soit le log passé. Ce système permet par exemple d'actualiser le tableau après l'exécution de la fonction **swap** par le [Specialist](#21-specialistjs). Si la fonction devant être exécutée se trouve être une méthode de l'objet depuis lequel elle a été appelée, la fonction est exécutée en tant que méthode de l'objet et non pas en tant que fonction globale.
+>Cette méthodologie doit être évitée si la méthode comprend des paramètres précis car le log actuel est entièrement passé en paramètres (et non pas juste un des éléments qu'il contient ex : log[0] == "nomDeLaFonction").
+```js
+// teacher.js [Ln 66 & 75]
+
+/*
+  obj[0] - Objet appelant (ex : instance de TArray)
+  obj[1] - Fonction appelée (ex : updateArray)
+*/
+
+if (obj[0][obj[1]]) { // Est-ce que l'objet possède la fonction comme méthode ?
+  obj[0][obj[1]](lastLog, isGoingForward); // Oui, on appelle objet.methode()
+} else {
+  obj[1].call(this, obj[0], lastLog, isGoingForward); // Non, on appelle la fonction et on passe l'objet en paramètre (voir 3.2)
+}
+```
 ### 3.4 Display
+La fonction **display** permet l'affichage des éléments à l'écran. Pour cela, un itérateur nommé curr est incrémenté et on affiche dans une balise HTML les valeurs correspondantes à log[curr]. Au lancement du code, curr est initialisé à -1 de façon à pouvoir initialiser les différentes variables dans l'opérateur conditionnel "else".
+```js
+// teacher.js [Ln 185]
+
+function display(shouldGoForward = true) {
+  if (curr != -1) {
+    ...
+  }
+  else {// Initialisation
+    new TArray(
+        // Valeurs initiales du tableau
+        [12, 345, 4, 546, 122, 84, 98, 64, 9, 1, 3223, 4891, 455, 23, 234, 213],
+        // Id du conteneur HTML qui contiendra le tableau
+        'table',
+        // BeforeListeners
+        [
+            [
+                'swap', (that, log) => {
+                    that.select([log[1][1], log[1][1] + 1], 'red');
+                }
+            ],
+            [
+                'isSmaller', (that, log) => {
+                    let index = Utils.findSubArray(that.refArray, log[1]);
+                    if (index == -1) {
+                        index = Utils.findSubArray(that.refArray, Utils.deepCopy(log[1]).reverse());
+                        that.select([index, index + 1]);
+                    } else {
+                        that.select([index, index + 1]);
+                    }
+                }
+            ]
+        ],
+        // AfterListeners
+        [
+            [
+                'swap', (that, log) => { that.updateArray(log[3]) }
+            ],
+            [// Exécute la méthode "displayArray" de TArray
+                'isSmaller', 'displayArray'
+            ]
+        ]);
+    curr++; // curr passe à 0.
+    algorithm.innerHTML = `<pre>${logs[0][2]}</pre>`; // affiche le code de log[0] à droite de l'écran
+  }
+  ...
+}
+```
+L'affichage est ensuite actualisé à chaque lancement de la fonction.
 ## 4. Todo
 ✅ Présentation<br>
 ✅ Documentation<br>

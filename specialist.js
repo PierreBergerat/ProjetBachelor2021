@@ -30,19 +30,19 @@ function bubble_Sort(array) {
 
 /**
  * Returns true if a is smaller than b. Definitely here for demonstration purposes
- * @param {Number} a 
- * @param {Number} b 
- * @returns 
+ * @param {Number} a - first operand
+ * @param {Number} b - second operand
+ * @returns a boolean indicating whether a is smaller than b
  */
 function isSmaller(a, b) {
     return a < b;
 }
 
 /**
- * 
- * @param {*} a 
- * @param {*} i 
- * @returns 
+ * Swaps the item at position i with the item at position i+1 in a
+ * @param {Array} a - Array whose elements will be swaped
+ * @param {Number} i - Index of the first element to be swapped
+ * @returns a with the ith and i+1th items swapped
  */
 function swap(a, i) {
     var temp = a[i];

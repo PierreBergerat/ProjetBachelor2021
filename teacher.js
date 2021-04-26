@@ -7,14 +7,14 @@ var afterListeners = new Map();
 
 class Utils {
     /**
-     * 
-     * @param {*} array 
-     * @param {*} subarray 
-     * @returns 
+     * Returns the index of the first element of the subarray in array
+     * @param {Array} array - Array potentially containing subarray
+     * @param {Array} subarray - Array that will be look for in array
+     * @returns The index of the first element of subarray in array, or -1 if subarray not found.
      */
     static findSubArray(array, subarray) {
         var i = 0, sl = subarray.length, l = array.length + 1 - sl;
-        loop: for (; i < l; i++) {
+        loop: for (; i < l; i++) { // "loop:" is a label that allows us to jump out of the nested loop
             for (var j = 0; j < sl; j++) {
                 if (array[i + j] !== subarray[j]) {
                     continue loop;
@@ -26,9 +26,9 @@ class Utils {
     }
 
     /**
-     * 
-     * @param {*} o 
-     * @returns 
+     * Returns a deep copy of o. Therefore, the returned object won't have any references to o.
+     * @param {Object} o - The object to copy
+     * @returns a deep copy of o
      */
     static deepCopy(o) {
         return JSON.parse(JSON.stringify(o));
@@ -55,17 +55,17 @@ function log(func, name, args) {
 }
 
 /**
- * 
- * @param {*} curr 
- * @param {*} isGoingForward 
+ * Triggers the functions linked to the listeners
+ * @param {Number} curr - The index of the currently displayed log
+ * @param {Boolean} isGoingForward - Whether display is going forward or backward
  */
 function updateObjects(curr, isGoingForward) {
     if (curr > 0) {
         lastLog = logs[curr - 1];
         for (let obj of afterListeners.get(lastLog[0].split('()')[0]) || []) {
-            if (obj[0][obj[1]]) {
-                obj[0][obj[1]](lastLog, isGoingForward);
-            } else {
+            if (obj[0][obj[1]]) { // if the object calling has the function as a method
+                obj[0][obj[1]](lastLog, isGoingForward); // then it is called as object.method()
+            } else { // otherwise the function is called globally and a reference to obj[0] is passed
                 obj[1].call(this, obj[0], lastLog, isGoingForward);
             }
         }
@@ -81,7 +81,7 @@ function updateObjects(curr, isGoingForward) {
 }
 
 /**
- * 
+ * Is used to implement listeners in any classes extending TItem.
  */
 class TItem {
     constructor(before, after) {
@@ -93,7 +93,7 @@ class TItem {
         if (!beforeAction) {
             return;
         }
-        for (let [funcName, func] of beforeAction) {
+        for (let [funcName, func] of beforeAction) {// Adds / Appends an array of form [object, function] to actionListeners
             actionListeners.get(funcName)?.push([this, func]) || actionListeners.set(funcName, [[this, func]]);
         }
     }
@@ -125,11 +125,11 @@ class TItem {
  */
 class TArray extends TItem {
     /**
-     * 
-     * @param {*} refArray 
-     * @param {*} container 
-     * @param {*} beforeAction 
-     * @param {*} afterAction 
+     * Creates a new TArray and registers its listeners
+     * @param {Array} refArray - array of reference for the new TArray
+     * @param {HTMLElement} container - where to display the TArray
+     * @param {Array.<Array.<String,Function>>} beforeAction - beforeListeners
+     * @param {Array.<Array.<String,Function>>} afterAction - afterListeners
      */
     constructor(refArray, container, beforeAction, afterAction) {
         super(beforeAction, afterAction);
@@ -147,8 +147,8 @@ class TArray extends TItem {
     }
 
     /**
-     * 
-     * @param {*} newArr 
+     * Updates the TArray with new values
+     * @param {Array} newArr - new values to update the TArray with
      */
     updateArray(newArr) {
         this.refArray = newArr;
@@ -160,15 +160,8 @@ class TArray extends TItem {
 
     /**
      * 
-     */
-    displayArray() {
-        //console.log("Mon array est beau : " + this.refArray);
-    }
-
-    /**
-     * 
-     * @param {*} indexes 
-     * @param {*} color 
+     * @param {Array.<Number>} indexes - what indexes of the array to select
+     * @param {mixed} color - which color it should be selected with (only supports red for now but more can be added in style.css)
      */
     select(indexes, color) {
         let className = color ? `selected-${color}` : 'selected';
@@ -257,8 +250,8 @@ function display(shouldGoForward = true) {
 }
 
 /**
- * 
- * @param {*} id 
+ * Automatically plays the next log until the end or until the button is pressed again
+ * @param {string} id - the id of the start / stop button
  */
 function play(id) {
     id = id.target ? id.target?.id : id;
