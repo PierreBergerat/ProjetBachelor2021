@@ -16,9 +16,9 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-6 mb-2 mt-3">
-                <button class="btn btn-primary" onclick="display(false)">Précédent</button>
-                <button class="btn btn-primary" onclick="display(true)">Suivant</button>
-                <button id="playButton" class="btn btn-primary float-end" onclick="play(this.id)">Jouer toute la
+                <button class="btn btn-primary" onclick="Teacher.display(false)">Précédent</button>
+                <button class="btn btn-primary" onclick="Teacher.display(true)">Suivant</button>
+                <button id="playButton" class="btn btn-primary float-end" onclick="Teacher.play(this.id)">Jouer toute la
                     séquence</button>
             </div>
         </div>
@@ -37,7 +37,26 @@
 <script src="teacher.js"></script>
 <script src="observer.js"></script>
 <script src="specialist.js"></script>
-<script>startObserver(); run(); display();</script>
+<script>
+    let obs = new Observer([], [globalThis], [{
+        aspect: (...args) => { Teacher.log(args[0], args[1], args[2]) },
+        advice: "before"
+    }, {
+        aspect: (value) => {
+            if (value != undefined) {
+                Teacher.log(value)
+            }
+            else {
+                Teacher.log("undefined")
+            }
+            return value
+        },
+        advice: "afterReturning"
+    }
+    ], [])
+    obs.startObserver();
+    run();
+    Teacher.display();</script>
 
 
 </html>
