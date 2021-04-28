@@ -25,10 +25,34 @@ table td.selected-red {
 }
 
 table {
-    table-layout: fixed;
+    table-layout: inherit;
     word-wrap: break-word;
+    width: 100%;
 }
 
 table th, table td {
-    overflow: hidden;
+    overflow: auto;
+}
+
+.p-5{
+    padding: 3%;
+}
+
+.float-right {
+    float: right;
+}
+
+@media screen and (min-width: 1250px) {
+    .container {
+        padding: 1vh 5%;
+    }
+    .col {
+        float: left;
+        width: 50%;
+    }
+    .row:after {
+        content: "";
+        display: table;
+        clear: both;
+    }
 }
