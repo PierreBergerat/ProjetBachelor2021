@@ -11,7 +11,7 @@ class Observer {
    * @param {prototype} prototype - the class prototype (passed via CLASSNAME.prototype) to target 
    * @returns - all the methods presents in the prototype
    */
-  getMethods = (prototype) => {
+  getObjectMethods = (prototype) => {
     let properties = new Set(), currentObj = prototype;
     do {
       Object.getOwnPropertyNames(currentObj).map(item => properties.add(item))
@@ -26,7 +26,7 @@ class Observer {
    * @param {Function} aspect - Function to add to the method
    * @param {"before"|"after"|"around"|"afterReturning"} advice - Where to add the method.
    */
-  replaceMethod(target, methodName, aspect, advice) {
+  augmentMethod(target, methodName, aspect, advice) {
     const originalCode = target[methodName];
     target[methodName] = (...args) => {
       if (["before", "around"].includes(advice)) {
@@ -49,11 +49,10 @@ class Observer {
    * @param {Function} aspect - Function to add to the method
    * @param {"before"|"after"|"around"|"afterReturning"} advice - Where to add the method
    */
-  inject(target, functions) {
-    const methods = this.getMethods(target);
-    methods.forEach(m => {
+  injectMethod(target, functions) {
+    this.getObjectMethods(target).forEach(m => {
       for (let _function of functions) {
-        this.replaceMethod(target, m, _function.aspect, _function.advice);
+        this.augmentMethod(target, m, _function.aspect, _function.advice);
       }
     })
   }
@@ -67,7 +66,7 @@ class Observer {
       var potentialFunction = namespaceObject[name];
       if (Object.prototype.toString.call(potentialFunction) === '[object Function]' && !this.blacklist.includes(potentialFunction.name)) {
         for (let _function of functions) {
-          this.replaceMethod(namespaceObject, name, _function.aspect, _function.advice)
+          this.augmentMethod(namespaceObject, name, _function.aspect, _function.advice)
         }
       }
     }
@@ -78,7 +77,7 @@ class Observer {
    */
   startObserver() {
     for (let _object of this.objects) {
-      this.inject(_object.prototype, this.functions)
+      this.injectMethod(_object.prototype, this.functions)
     }
     for (let _namespace of this.namespaces) {
       this.injectNamespace(_namespace, this.functions)
