@@ -1,4 +1,11 @@
 class Observer {
+  /**
+   * Instanciates the observer
+   * @param {Array.<Object>} objects 
+   * @param {Array.<Object>} namespaces 
+   * @param {Array.<Object>} functions 
+   * @param {Array.<String>} blacklist 
+   */
   constructor(objects, namespaces, functions, blacklist) {
     this.objects = objects;
     this.namespaces = namespaces;

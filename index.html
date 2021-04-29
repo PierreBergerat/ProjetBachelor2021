@@ -59,6 +59,7 @@
         ],
         []
     ).startObserver();
+    fetch('specialist.js').then(r => r.text()).then(data => Teacher.setText(data))
     run();
     Teacher.display();</script>
 

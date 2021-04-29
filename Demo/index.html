@@ -55,10 +55,10 @@
                     advice: "afterReturning"
                 }
             ],
-            []
+            ["run"]
         ).startObserver();
-        run();
         fetch('specialist.js').then(res => res.text()).then(data => Teacher.setText(data))
+        run();
         Teacher.display();</script>
 </body>
 
