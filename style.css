@@ -2,6 +2,15 @@
     display: inline;
 }
 
+#display {
+    overflow-x: scroll;
+}
+
+#algorithm {
+    height: 80vh;
+    overflow: scroll;
+}
+
 #algorithm span {
     background-color: yellow;
 }
