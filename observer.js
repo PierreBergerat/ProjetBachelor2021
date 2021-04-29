@@ -4,7 +4,7 @@ class Observer {
     this.namespaces = namespaces;
     this.functions = functions;
     this.blacklist = blacklist;
-    this.blacklist = new Array(...new Set([...this.blacklist, ...["toString", "setInterval", "setTimeout", "clearInterval"]]))
+    this.blacklist = new Array(...new Set([...this.blacklist, ...["toString", "setInterval", "setTimeout", "clearInterval", "fetch"]]))
   }
   /**
    * Returns the methods of an object's prototype
