@@ -4,6 +4,7 @@ const _displayContainer = document.getElementById('display');
 const _algorithm = document.getElementById('algorithm');
 var _actionListeners = new Map();
 var _afterListeners = new Map();
+var _fullcode = ""
 
 class Utils {
     /**
@@ -143,6 +144,20 @@ class TArray extends TItem {
 }
 
 class Teacher {
+
+    static setText(text) {
+        _fullcode = text;
+        _algorithm.innerHTML = `<pre>${_fullcode}</pre>`;
+        _algorithm.innerHTML = '<pre>' + _algorithm.innerHTML
+            .replaceAll('<span>', '')
+            .replaceAll('</span>', '')
+            .replaceAll('<pre>', '')
+            .replaceAll('</pre>', '')
+            .split("function " + _logs[_curr][0].replaceAll(')', ''))
+            .join(`</pre><span>function ${_logs[_curr][0].replaceAll('()', '')}</span><pre>(`) + '</pre>';
+        document.getElementById('algorithm').getElementsByTagName('span')[0].scrollIntoView()
+    }
+
     /**
      * Check will be able to verify the values/names/code of the current function and to interrupt it or react accordingly to the values read
      * @param {Function} func - The function that has been called
@@ -226,7 +241,6 @@ class Teacher {
                     ]
                 ]);
             _curr++;
-            _algorithm.innerHTML = `<pre>${_logs[0][2]}</pre>`;
         }
         Teacher.updateObjects(_curr, shouldGoForward);
         _algorithm.innerHTML = '<pre>' + _algorithm.innerHTML
@@ -234,8 +248,11 @@ class Teacher {
             .replaceAll('</span>', '')
             .replaceAll('<pre>', '')
             .replaceAll('</pre>', '')
-            .split(_logs[_curr][0].replaceAll(')', ''))
-            .join(`</pre><span>${_logs[_curr][0].replaceAll('()', '')}</span><pre>(`) + '</pre>';
+            .split("function " + _logs[_curr][0].replaceAll(')', ''))
+            .join(`</pre><span>function ${_logs[_curr][0].replaceAll('()', '')}</span><pre>(`) + '</pre>';
+        try {
+            document.getElementById('algorithm').getElementsByTagName('span')[0].scrollIntoView()
+        } catch (err) { }
         _displayContainer.innerHTML = "";
         for (let elem in _logs[_curr]) {
             let p = document.createElement('pre');
