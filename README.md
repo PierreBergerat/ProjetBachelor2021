@@ -1,251 +1,185 @@
-# AlgObserver.js
-  [![JavaScript](https://img.shields.io/badge/JavaScript-ES2016+-blue?style=?style=plastic&logo=javascript&logoColor=F7DF1E)]() [![HTML](https://img.shields.io/badge/HTML-5-blue?style=?style=plastic&logo=html5)]() [![Bootstrap](https://img.shields.io/badge/Bootstrap-5.0-blue?style=?style=plastic&logo=bootstrap)]()
-## Table des matières
-- [AlgObserver.js](#algobserverjs)
-  - [Table des matières](#table-des-matières)
-  - [1. Présentation](#1-présentation)
-    - [1.1 Concept](#11-concept)
-    - [1.2 Structure du répertoire](#12-structure-du-répertoire)
-    - [1.3 Technologies employées](#13-technologies-employées)
-  - [2. Composants](#2-composants)
-    - [2.1 Specialist.js](#21-specialistjs)
-    - [2.2 Observer.js](#22-observerjs)
-      - [2.2.1 Aspects](#221-aspects)
-      - [2.2.2 Advices](#222-advices)
-    - [2.3 Teacher.js](#23-teacherjs)
-    - [2.4 Index.html](#24-indexhtml)
-  - [3. Fonctionnement](#3-fonctionnement)
-    - [3.1 Injections](#31-injections)
-    - [3.2 TItem](#32-titem)
-    - [3.3 UpdateObjects](#33-updateobjects)
-    - [3.4 Display](#34-display)
-  - [4. Todo](#4-todo)
-    - [4.1 Optionnel](#41-optionnel)
-## 1. Présentation
-AlgObserver est un outil JavaScript permettant la capture des appels de fonctions des scripts exécutés sur la même page sans que ces derniers aient à être modifiés. Inspiré des concepts de l'Aspect Oriented Programming (AOP), AlgObserver permet "l'augmentation" des fonctions et des méthodes en injectant du code directement dans leur prototype. Ainsi, il est possible d'ajouter une méthode de journalisation des appels de fonctions mais le concept peut également être utilisé pour altérer complètement le fonctionnement d'un script en modifiant les valeurs de retours, les opérations effectuées sur les arguments ou encore d'ajouter de nouvelles méthodes aux objets ([également sur les objets prédéfinis par JavaScript](https://www.oreilly.com/library/view/javascript-the-good/9780596517748/ch04s07.html)).
-### 1.1 Concept
-Conceptuellement, le programme fonctionne comme suit:<br>
-On imagine un spécialiste dans un domaine en train de travailler (ex : un ouvrier, un ingénieur, ...). L'entreprise dans laquelle il travaille a accepté qu'un reportage soit fait sur lui afin de pouvoir documenter et partager son savoir mais à condition que celui-ci ne soit pas dérangé pendant son service (on implique ici que le code du [Specialist](#21-specialistjs) ne doit pas être modifié). Le journaliste (l'[Observer](#22-observerjs)), va alors pouvoir observer tout ce qu'il fait et journaliser chacune de ses actions. A partir de ces notes, un professeur d'université (le [Teacher](#23-teacherjs)), va pouvoir enseigner les manoeuvres effectuées par le spécialiste afin d'expliquer ce qu'il fait ainsi que pourquoi et comment il le fait.<br>
-[Index.html](#24-indexhtml) agit comme le coordinateur des fichiers JavaScript et permet l'exécution de code de façon séquencée en plus de permettre l'affichage, il n'a donc pas de sens au niveau purement conceptuel.
+# 1. AlgObserver.js
+[![JavaScript](https://img.shields.io/badge/JavaScript-ES2016+-blue?style=?style=plastic&logo=javascript&logoColor=F7DF1E)](https://github.com/PierreBergerat/ProjetBachelor2021) [![HTML](https://img.shields.io/badge/HTML-5-blue?style=?style=plastic&logo=html5)](https://github.com/PierreBergerat/ProjetBachelor2021)
 
-[![](https://mermaid.ink/img/eyJjb2RlIjoiJSV7aW5pdDogeyAndGhlbWUnOiAnZm9yZXN0Jywnc2VxdWVuY2VEaWFncmFtJzoge1xuJ2N1cnZlJzogJ2xpbmVhcicsJ3JpZ2h0QW5nbGVzJzonVHJ1ZSdcbn19IH0lJVxuc2VxdWVuY2VEaWFncmFtXG4gICAgcGFydGljaXBhbnQgU3BlY2lhbGlzdC5qc1xuICAgIHBhcnRpY2lwYW50IE9ic2VydmVyLmpzXG4gICAgcGFydGljaXBhbnQgVGVhY2hlci5qc1xuICAgIHBhcnRpY2lwYW50IEluZGV4Lmh0bWxcbiAgICBJbmRleC5odG1sLT4-T2JzZXJ2ZXIuanM6IGluamVjdChPYmpldCBuYW1lU3BhY2UpXG4gICAgSW5kZXguaHRtbC0-PlNwZWNpYWxpc3QuanM6IHJ1bigpXG4gICAgYWN0aXZhdGUgU3BlY2lhbGlzdC5qc1xuICAgIFNwZWNpYWxpc3QuanMtPj5PYnNlcnZlci5qczogYXBwZWxGb25jdGlvbihhcmdzKVxuICAgIGFjdGl2YXRlIE9ic2VydmVyLmpzXG4gICAgYWN0aXZhdGUgT2JzZXJ2ZXIuanNcbiAgICBPYnNlcnZlci5qcy0-PlRlYWNoZXIuanM6IGxvZyhhcHBlbEZvbmN0aW9uLFwiYXBwZWxGb25jdGlvblwiLGFyZ3MpXG4gICAgYWN0aXZhdGUgVGVhY2hlci5qc1xuICAgIFRlYWNoZXIuanMtPj5UZWFjaGVyLmpzOiBsb2dzLnB1c2gobG9nKVxuICAgIFRlYWNoZXIuanMtLT4-T2JzZXJ2ZXIuanM6IFxuICAgIGRlYWN0aXZhdGUgVGVhY2hlci5qc1xuICAgIG9wdFxuICAgICAgICBhY3RpdmF0ZSBPYnNlcnZlci5qc1xuICAgICAgICBPYnNlcnZlci5qcy0-Pk9ic2VydmVyLmpzOiB2YWxldXIgPSBub3V2ZWxsZVZhbFxuICAgICAgICBkZWFjdGl2YXRlIE9ic2VydmVyLmpzXG4gICAgZW5kXG4gICAgZGVhY3RpdmF0ZSBPYnNlcnZlci5qc1xuICAgIE9ic2VydmVyLmpzLS0-PlNwZWNpYWxpc3QuanM6IHJldG91cm5lIHZhbGV1clxuICAgIGRlYWN0aXZhdGUgT2JzZXJ2ZXIuanNcbiAgICBkZWFjdGl2YXRlIFNwZWNpYWxpc3QuanNcbiAgICBsb29wXG4gICAgSW5kZXguaHRtbC0-PlRlYWNoZXIuanM6IGRpc3BsYXkoKVxuICAgIGVuZCIsIm1lcm1haWQiOnt9LCJ1cGRhdGVFZGl0b3IiOmZhbHNlfQ)](https://mermaid-js.github.io/mermaid-live-editor/#/edit/eyJjb2RlIjoiJSV7aW5pdDogeyAndGhlbWUnOiAnZm9yZXN0Jywnc2VxdWVuY2VEaWFncmFtJzoge1xuJ2N1cnZlJzogJ2xpbmVhcicsJ3JpZ2h0QW5nbGVzJzonVHJ1ZSdcbn19IH0lJVxuc2VxdWVuY2VEaWFncmFtXG4gICAgcGFydGljaXBhbnQgU3BlY2lhbGlzdC5qc1xuICAgIHBhcnRpY2lwYW50IE9ic2VydmVyLmpzXG4gICAgcGFydGljaXBhbnQgVGVhY2hlci5qc1xuICAgIHBhcnRpY2lwYW50IEluZGV4Lmh0bWxcbiAgICBJbmRleC5odG1sLT4-T2JzZXJ2ZXIuanM6IGluamVjdChPYmpldCBuYW1lU3BhY2UpXG4gICAgSW5kZXguaHRtbC0-PlNwZWNpYWxpc3QuanM6IHJ1bigpXG4gICAgYWN0aXZhdGUgU3BlY2lhbGlzdC5qc1xuICAgIFNwZWNpYWxpc3QuanMtPj5PYnNlcnZlci5qczogYXBwZWxGb25jdGlvbihhcmdzKVxuICAgIGFjdGl2YXRlIE9ic2VydmVyLmpzXG4gICAgYWN0aXZhdGUgT2JzZXJ2ZXIuanNcbiAgICBPYnNlcnZlci5qcy0-PlRlYWNoZXIuanM6IGxvZyhhcHBlbEZvbmN0aW9uLFwiYXBwZWxGb25jdGlvblwiLGFyZ3MpXG4gICAgYWN0aXZhdGUgVGVhY2hlci5qc1xuICAgIFRlYWNoZXIuanMtPj5UZWFjaGVyLmpzOiBsb2dzLnB1c2gobG9nKVxuICAgIFRlYWNoZXIuanMtLT4-T2JzZXJ2ZXIuanM6IFxuICAgIGRlYWN0aXZhdGUgVGVhY2hlci5qc1xuICAgIG9wdFxuICAgICAgICBhY3RpdmF0ZSBPYnNlcnZlci5qc1xuICAgICAgICBPYnNlcnZlci5qcy0-Pk9ic2VydmVyLmpzOiB2YWxldXIgPSBub3V2ZWxsZVZhbFxuICAgICAgICBkZWFjdGl2YXRlIE9ic2VydmVyLmpzXG4gICAgZW5kXG4gICAgZGVhY3RpdmF0ZSBPYnNlcnZlci5qc1xuICAgIE9ic2VydmVyLmpzLS0-PlNwZWNpYWxpc3QuanM6IHJldG91cm5lIHZhbGV1clxuICAgIGRlYWN0aXZhdGUgT2JzZXJ2ZXIuanNcbiAgICBkZWFjdGl2YXRlIFNwZWNpYWxpc3QuanNcbiAgICBsb29wXG4gICAgSW5kZXguaHRtbC0-PlRlYWNoZXIuanM6IGRpc3BsYXkoKVxuICAgIGVuZCIsIm1lcm1haWQiOnt9LCJ1cGRhdGVFZGl0b3IiOmZhbHNlfQ)
-1. L'[Observer](#22-observerjs) injecte le ou les namespace(s) désiré(s), la configuration actuelle étant l'injection de [globalThis](https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Global_Objects/globalThis) qui permet l'injection de toutes les fonctions nommées dites "globales", c'est-à-dire les fonctions qui ne sont ni des sous-fonctions (fonctions dans des fonctions), ni des méthodes de classe, ni des fonctions anonymes (fonction de forme **()=>{}**). Il est également possible d'utiliser la fonction d'injection "inject" sur les prototypes de classes afin de pouvoir injecter leurs méthodes (voir [Fonctionnement](#3-fonctionnement)).
-2. Une fois les méthodes injectées, l'algorithme défini dans le [Specialist](#21-specialistjs) est exécuté et chacun des appels de fonctions globales et des objets injectés sont capturés par l'[Observer](#22-observerjs) et journalisés par le [Teacher](#23-teacherjs).
-3. L'exécution de l'algorithme terminée, [Index](#24-indexhtml) affiche les résultats à l'écran. Il est alors possible d'avancer et de reculer pour observer les différentes opérations effectuées lors de l'exécution du [Specialist](#21-specialistjs).
-### 1.2 Structure du répertoire
-```js
-📦 AlgObserver.js
- ┣ 📜index.html // Structure de la page Web
- ┣ 📜observer.js // Enregistre chaque appel de fonction de l'algorithme
- ┣ 📜specialist.js // Algorithme visant à résoudre une tâche
- ┗ 📜teacher.js // Met en page et affiche les données enregistrées
- ```
-### 1.3 Technologies employées
-- [Bootstrap 5](https://getbootstrap.com/docs/5.0/getting-started/introduction/) (via [CDN](https://fr.wikipedia.org/wiki/R%C3%A9seau_de_diffusion_de_contenu))
-- JavaScript ECMA2016+ ([Voir table de compatibilité JavaScript 2016+](https://kangax.github.io/compat-table/es2016plus/))
-- HTML5
-## 2. Composants
-### 2.1 Specialist.js
-Le [Specialist](#21-specialistjs) contient un/des algorithme(s) (ici Bubble sort) dont les appels de fonctions vont être capturés par l'[Observer](#22-observerjs). La taille et la complexité de ce(s) dernier(s) n'ont a priori pas d'incidence sur le déroulement des événements.
->Les algorithmes présents dans le spécialiste n'ont aucune dépendance vis à vis de l'[Observer](#22-observerjs) et du [Teacher](#23-teacherjs), si ce n'est que son exécution doit se faire après l'exécution de la fonction 
-**startObserver** (cf. [Index](#24-indexhtml)).
+AlgObserver permet d'augmenter des fonctions JavaScript, built-in ou non, avec d'autres fonctions définies par l'utilisateur. Dans l'exemple fourni, l'augmentation des fonctions permet l'ajout d'un outil de journalisation à chacune des fonctions injectées, et autorise ainsi le parcours rétrospectif de ces dernières afin de mieux comprendre le fonctionnement du code.
+
+- [1. AlgObserver.js](#1-algobserverjs)
+  - [1.1. Installation](#11-installation)
+  - [1.2. Utilisation](#12-utilisation)
+    - [1.2.1. Observer.js](#121-observerjs)
+      - [1.2.1.1. new Observer(objects, namespaces, functions, blacklist).startObserver()](#1211-new-observerobjects-namespaces-functions-blackliststartobserver)
+        - [1.2.1.1.1. objects](#12111-objects)
+        - [1.2.1.1.2. namespaces](#12112-namespaces)
+        - [1.2.1.1.3. functions](#12113-functions)
+          - [1.2.1.1.3.1. advices](#121131-advices)
+        - [1.2.1.1.4. blacklist](#12114-blacklist)
+        - [1.2.1.1.5. startObserver()](#12115-startobserver)
+        - [1.2.1.1.6. Exemple complet d'instanciation d'Observer](#12116-exemple-complet-dinstanciation-dobserver)
+      - [1.2.1.2. run()](#1212-run)
+    - [Teacher.js](#teacherjs)
+
+## 1.1. Installation
+Aucune installation n'est requise, il suffit d'appeler l'[observer](Projet_Bachelor/observer.js) dans la page HTML contenant le code et d'appeler les fonctions suivantes.
 ```html
-<!-- Index.html [ln 40] -->
+<!-- Index.html -->
+<script src="scriptACapturer.js"></script> 
+<script src="observer.js"></script>
 <script>
-    startObserver(); // Géré par Observer.js (cf. plus bas)
-    run(); // Fonction permettant de lancer l'algorithme présent dans specialist.js
-    display(); // Affichage des résultats de la capture par teacher.js (cf. plus bas)
+  /* Des explications sont présentes plus bas */
+    new Observer(objects, namespaces, functions, blacklist);
+    run();
 </script>
 ```
-### 2.2 Observer.js
-L'[Observer](#22-observerjs) implémente les concepts AOP à proprement parler. Par ses méthodes **inject** et **injectNamespace**, il permet l'injection d'aspects dans les fonctions passées en paramètres ou dans un namespace. L'augmentation en tant que telle est réalisée dans la fonction **replaceMethod**, où elle se verra être redéfinie selon les aspects et greffons (advices) passés en paramètres.
-#### 2.2.1 Aspects
-Il s'agit de la fonction qui va venir ce greffer à celle indiquée comme target. Dans l'exemple donné, deux aspects sont utilisés :
-- loggingAspect : envoie les arguments et les informations de la fonction actuellement exécutée à [Teacher](#23-teacherjs).
-- loggingReturnedValueAspect : envoie la valeur de retour de la fonction actuellement exécutée à [Teacher](#23-teacherjs).
-
-Il est bien évidemment possible de modifier ces fonctions ainsi que d'en ajouter des nouvelles. De plus, comme dans le cas d'un aspect passé avec l'advice "afterReturning" la valeur de retour est aussi passée en paramètre, il est possible de la modifier et donc de changer la façon dont la fonction va fonctionner.
-#### 2.2.2 Advices
-Il s'agit de l'endroit où l'aspect va être inséré. Il existe actuellement 4 advices.
-- before : l'aspect sera exécuté *avant* la fonction augmentée.
-- around : l'aspect sera exécuté *avant* ***et*** *après* la fonction augmentée.
-- after : l'aspect sera exécuté *après* la fonction augmentée.
-- afterReturning : l'aspect sera exécuté *après* la fonction augmentée et ne recevra que la valeur de retour de la fonction augmentée en paramètre.
-### 2.3 Teacher.js
-Le [Teacher](#23-teacherjs) reçoit dans sa fonction **log** tous les appels de fonctions effectués par [Specialist](#21-specialistjs) et les enregistre dans un tableau de tableau de forme
+>L'ordre d'appel des scripts est important car scriptACapturer doit être chargé pour qu'observer puisse augmenter ses fonctions.
+## 1.2. Utilisation
+### 1.2.1. Observer.js
+Observer.js est le point central d'AlgObserver car c'est lui qui permet l'injection des fonctions. Comme vu plus haut, plusieurs appels de fonctions doivent être effectués pour que le programme fonctionne.
+#### 1.2.1.1. new Observer(objects, namespaces, functions, blacklist).startObserver()
+  
+Cet appel crée une nouvelle instance d'Observer et permet d'injecter les fonctions selon les critères passés en paramètres. Ceux-ci sont, dans l'ordre :
+##### 1.2.1.1.1. objects
+Tableau des classes à injecter. Pour injecter une classe, il faut indiquer le nom complet de celle-ci. Cet argument attend un tableau même si une seule classe est injectée (ou aucune).
 ```js
-logs = [
-    ["nomFonction0", "argsFonction0", "codeFonction0", "valeurRetourFonction0"],
-    ["nomFonction1", "argsFonction1", "codeFonction1", "valeurRetourFonction1"],
-    ...
-]
+  [] // aucune classe ne sera injectée
+  [maClasse] // la classe "maClasse" sera injectée
+  [maClasse1, maClasse2, maClasse3] // toutes les classes indiquées seront injectées
 ```
-qui va permettre de parcourir les appels dans l'ordre grâce à un itérateur nommé **curr**. Ce fichier possède de plus les fonctions [display](#34-display) et [updateObjects](#33-updateobjects) qui permettent un affichage dynamique et personnalisé. Ces fonctions sont détaillées plus bas.
-### 2.4 Index.html
-[Index](#24-indexhtml) permet l'affichage de la page et coordonne les appels de fonctions envoyés aux différents autres fichiers.
-## 3. Fonctionnement
-### 3.1 Injections
-Les injections sont définies avec les fonctions présentes ci-dessous. Celles-ci seront effectuées dès l'appel de la méthode **startObserver**, qui doit les contenir (voir observer.js [Ln 93]).
+##### 1.2.1.1.2. namespaces
+Tableau des namespaces à injecter. Dans la plupart des cas, on voudra injecter globalThis pour injecter toutes les fonctions globales (c'est-à-dire des fonctions ne faisant pas parties d'objets). Cet argument attend un tableau même si un seul namespace est injecté (ou aucun).
 ```js
-/* Exemples d'injection de namespace (voir observer.js [Ln 93]).*/
-/* Dans la configuration actuelle, toutes les méthodes contenues dans le namespace sont augmentée avec loggingAspect, "before" et loggingReturnedValueAspect, "afterReturning" (voir plus haut).*/
-
-// Injecte le namespace globalThis
-injectNamespace(globalThis);
-
-// Exemples d'injection de classes
-
-// Injecte la classe "Test"
-inject(Test.prototype, loggingAspect, "before");
-inject(Test.prototype, loggingReturnedValueAspect, "afterReturning");
-
-// Injecte l'objet global "Math". Permet de journaliser Math.pow(), Math.exp(), etc.
-inject(Math, loggingAspect, "before");
-inject(Math, loggingReturnedValueAspect, "afterReturning");
-
-// Injecte l'objet global "document". Permet de journaliser document.querySelector, document.getElementsById(), etc.
-inject(document, loggingAspect, "before");
-inject(document, loggingReturnedValueAspect, "afterReturning");
+  [] // aucun namespace ne sera injecté
+  [globalThis] // le namespace global sera injecté
 ```
-### 3.2 TItem
-La classe **TItem** définie dans le [Teacher](#23-teacherjs) permet, par son extension, d'implémenter un système d'écouteur d'évènements qui autorise l'écoute du nom de la fonction actuellement affichée (ou simplement chargée). En effet, chaque classe étendant TItem (via *extends TItem*) devra impérativement appeler sa méthode **super** avec les paramètres indiquant les "Before" et "After" listeners.
-Ces derniers sont de forme :
+##### 1.2.1.1.3. functions
+Tableau des fonctions à injecter. Celles-ci sont en fait des objets javascript dont les propriétés "aspect" et "advice" ont été définies avec respectivement un aspect et un advice. Exemple de fonction valide.
 ```js
-[
-  ['nomDeLaFonction', (that, log, isGoingForward) => {}],
-  ['nomDeLaFonction', (that, log, isGoingForward) => {}]
-]
+1. {
+2.    aspect: (...args) => { console.log(args[0],args[1],args[2]) },
+3.    advice: "before"
+4. }
 ```
-soit un tableau de tableau de deux éléments organisés sont :
-1. {String} nomDeLaFonction - Le nom de la fonction à écouter (ex : "bubbleSort").
-1. Une fonction anonyme (de forme **()=>{}**) avec comme paramètres optionnels :
-   1. {Object} that - l'objet sur lequel le listener est appliqué, c'est-à-dire une instance d'une classe étendant TItem (par exemple TArray). On peut se servir de cet argument pour utiliser des méthodes internes à l'objet utiliser, par exemple la méthode **select** définie dans TArray.
-   2. {Array} log - l'appel de fonction construit [comme expliqué précédemment](#23-teacherjs).
-   3. {Boolean} isGoingForward - indique si la lecture du log courant se faire vers l'avant ou vers l'arrière (log suivant ou précédent). Plus généralement, ce booléen aura toujours la même valeur que celui passé en paramètres à **display**.
+Les lignes *1* et *4* indiquent la création d'un objet JavaScript. En effet, les accolades permettent une nouvelle instanciation de la classe Object, tout comme des crochets permettent la création implicite d'une instance de Array.
 
-Il est à noter que le nom des paramètres est ici complètement libre puisque les arguments seront toujours passés en paramètres dans le même ordre. Dès lors, on peut également se servir de la flexibilité inhérente aux fonctions JavaScript pour passer moins d'arguments selon les besoins.
-```js
-/* Exemples d'utilisations valides des Listeners */
+Les mots "aspect" et "advice" des lignes *2* et *3* sont les décalarations de propriétés de l'objet. Dans le cas actuel d'utilisation, les noms doivent obligatoirement être "aspect" et "advice", sans quoi observer.js ne pourra pas fonctionner.
 
-/* Les trois fonctions ci-dessous produiront le même résultat */
-['bubbleSort', (that, log, isGoingForward) => {console.log(that)}]
-['bubbleSort', (that) => {console.log(that)}]
-['bubbleSort', (a) => {console.log(a)}]
-```
-Un cas pratique d'utilisation est disponible dans le [Teacher](#23-teacherjs).
+A la ligne *2* une propriété nommée aspect est donc définie : celle-ci est une fonction (indiquée par les parenthèses suivie de la "fat arrow" **=>** et des accolades) dont l'argument est  un [Rest parameter](https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Functions/rest_parameters) (sauf pour "afterReturning" qui ne contient qu'une valeur et qui n'a donc pas besoin d'être un [Rest parameter](https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Functions/rest_parameters)), c'est-à-dire un paramètre unique précédé de trois points de suspension (comme ici avec ...args). Ce [Rest parameter](https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Functions/rest_parameters) sera soit composé de trois éléments, soit de un seul élément. Le nombre sera variable en fonction de l'advice indiqué (voir plus bas pour la liste des advices). Pour tout advice autre que "afterReturning", trois éléments seront présents dans args :
+1. la fonction actuellement exécutée sous forme d'objet
+   ```js
+   //Exemple de premier argument de args
+   function maFonction(param1, param2, param3)
+   ```
+2. le nom de la fonction sous forme de String
+   ```js
+   //Exemple de deuxième argument de args
+   "maFonction"
+   ```
+3. les arguments de la fonction sous forme d'un tableau de taille arguments(args[0]).length
+   ```js
+   //Exemple de troisième argument de args
+   [
+     "premierParametre",
+     function x(){return true},
+     false
+   ]
+   ```
+
+Dans le cas d'"afterReturning", seule **la valeur de retour** sera présente dans args (qui n'a donc pas besoin d'être un [Rest parameter](https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Functions/rest_parameters)).
+> Le nombre variable d'arguments signifie qu'une fonction à la fois définie pour "afterReturning" et un autre advice devra pouvoir gérer les cas où les arguments 2 et 3 ne seraient pas définis, par exemple en effectuant le test :
 ```js
-// teacher.js [Ln 200]
-...
-new TArray(..., ...,
-            [
-                [// Exécute la méthode display définie dans TArray lorsque swap est à l'écran
-                    'swap', (that, log) => {
-                        that.select([log[1][1], log[1][1] + 1], 'red');
-                    }
-                ],
-                [// Exécute la fonction indiquée lorsque isSmaller est à l'écran
-                    'isSmaller', (that, log) => {
-                        let index = Utils.findSubArray(that.refArray, log[1]);
-                        if (index == -1) {
-                            index = Utils.findSubArray(that.refArray, Utils.deepCopy(log[1]).reverse());
-                            that.select([index, index + 1]);
-                        } else {
-                            that.select([index, index + 1]);
-                        }
-                    }
-                ]
-            ],
-            [
-                [// Exécute la méthode updateArray définie dans TArray après que swap a été affiché
-                    'swap', (that, log) => { that.updateArray(log[3]) }
-                ],
-                [// Exécute la méthode displayArray définie dans TArray après que isSmaller a été affiché
-                    'isSmaller', 'displayArray'
-                ]
-            ]);
-...
-```
-```js
-// teacher.js [Ln 126]
-class TArray extends TItem {
+/* Fonctionne car "undefined" est "falsy"
+ cf. https://developer.mozilla.org/fr/docs/Glossary/Falsy */
+if(args[1] && args[2]){ 
   ...
-constructor(refArray, container, beforeAction, afterAction) {
-  super(beforeAction, afterAction);
+}
+// "afterReturning"
+else {
   ...
 }
 ```
-On remarque que deux tableaux sont passés en arguments et que **super** prend également deux arguments. Le premier permet d'indiquer les fonctions qui devront être exécutée lorsque la fonction exécutée dans le log courant est affichée à l'écran et le second indique les fonctions qui devront être exécuté si la fonction exécutée dans le log précédent était celle indiquée en paramètres.
-### 3.3 UpdateObjects
-Pour mettre à jour les objets, c'est-à-dire pour déclencher les triggers précédemment ajoutés, il faut que la fonction **UpdateObjects** soit exécutée. Celle-ci va tout d'abord lancer les méthodes qui ont été passées en tant que afterListener avec en paramètres le journal d'appel de fonction au temps t - 1, soit le log passé. Ce système permet par exemple d'actualiser le tableau après l'exécution de la fonction **swap** par le [Specialist](#21-specialistjs). Si la fonction devant être exécutée se trouve être une méthode de l'objet depuis lequel elle a été appelée, la fonction est exécutée en tant que méthode de l'objet et non pas en tant que fonction globale.
->Cette méthodologie doit être évitée si la méthode comprend des paramètres précis car le log actuel est entièrement passé en paramètres (et non pas juste un des éléments qu'il contient ex : log[0] == "nomDeLaFonction").
+###### 1.2.1.1.3.1. advices
+4 advices sont reconnus par observer.js et permettent d'indiquer au programme où injecter la fonction. Les advices sont obligatoirement indiqués par un String représentant leur nom :
+- "before" : la fonction injectée s'exécutera avant la fonction à injecter.
+- "around" : la fonction injectée s'exécutera avant **et** après la fonction à injecter
+- "after" : la fonction injectée s'exécutera après la fonction à injecter
+- "afterReturning" : la fonction injectée s'exécutera après la fonction à injecter et ne recevra *que la valeur de retour de la fonction à injecter* en paramètre
+##### 1.2.1.1.4. blacklist
+Tableau de string contenant les noms des fonctions à ne pas injecter. Cet argument attend un tableau même si un seul string est indiqué (ou aucun).
 ```js
-// teacher.js [Ln 66 & 75]
-
-/*
-  obj[0] - Objet appelant (ex : instance de TArray)
-  obj[1] - Fonction appelée (ex : updateArray)
-*/
-
-if (obj[0][obj[1]]) { // Est-ce que l'objet possède la fonction comme méthode ?
-  obj[0][obj[1]](lastLog, isGoingForward); // Oui, on appelle objet.methode()
-} else {
-  obj[1].call(this, obj[0], lastLog, isGoingForward); // Non, on appelle la fonction et on passe l'objet en paramètre (voir 3.2)
-}
+  [] // aucune fonction n'est retirée de la liste
+  ["maFonction"] // la fonction "maFonction" sera blacklistée
+  ["maFonction1", "maFonction2", "maFonction3"] // toutes les fonctions indiquées seront blacklistées.
 ```
-### 3.4 Display
-La fonction **display** permet l'affichage des éléments à l'écran. Pour cela, un itérateur nommé curr est incrémenté et on affiche dans une balise HTML les valeurs correspondantes à log[curr]. Au lancement du code, curr est initialisé à -1 de façon à pouvoir initialiser les différentes variables dans l'opérateur conditionnel "else".
+##### 1.2.1.1.5. startObserver()
+Cette méthode d'Observer permet de commencer l'injection des méthodes. En général, il sera plus utile d'appliquer cette méthode directement à la suite de l'instanciation.
 ```js
-// teacher.js [Ln 185]
+new Observer([],
+            [globalThis],
+            [{aspect: (...args) => { console.log(args[0], args[1], args[2])}, advice: "before"}],
+            []
+        ).startObserver(); // Démarrage immédiat de l'injection des fonctions
+```
+##### 1.2.1.1.6. Exemple complet d'instanciation d'Observer
+```js
+/* Instanciation de l'observer */
+new Observer(
+        /* objects : aucune classe ne sera injectée */
+        [],
 
-function display(shouldGoForward = true) {
-  if (curr != -1) {
-    ...
-  }
-  else {// Initialisation
-    new TArray(
-        // Valeurs initiales du tableau
-        [12, 345, 4, 546, 122, 84, 98, 64, 9, 1, 3223, 4891, 455, 23, 234, 213],
-        // Id du conteneur HTML qui contiendra le tableau
-        'table',
-        // BeforeListeners
+        /* namespaces : le namespace "globalThis" sera injecté */
+        [globalThis],
+
+        /* Déclaration du tableau de fonctions à injecter
+           Pour des explications sur Teacher.log(), voir plus bas */
         [
-            [
-                'swap', (that, log) => {
-                    that.select([log[1][1], log[1][1] + 1], 'red');
-                }
-            ],
-            [
-                'isSmaller', (that, log) => {
-                    let index = Utils.findSubArray(that.refArray, log[1]);
-                    if (index == -1) {
-                        index = Utils.findSubArray(that.refArray, Utils.deepCopy(log[1]).reverse());
-                        that.select([index, index + 1]);
-                    } else {
-                        that.select([index, index + 1]);
+
+            /* Première fonction */
+            {
+                /* la fonction aspect */
+                aspect: (...args) => { Teacher.log(args[0], args[1], args[2]) },
+                advice: "before"
+            },
+
+            /* Deuxième fonction */
+            {
+                aspect: (value) => {
+                    if (value != undefined) {
+                        Teacher.log(value)
                     }
-                }
-            ]
+                    else {
+                        Teacher.log("undefined")
+                    }
+                    return value
+                },
+                advice: "afterReturning"
+            }
         ],
-        // AfterListeners
-        [
-            [
-                'swap', (that, log) => { that.updateArray(log[3]) }
-            ],
-            [// Exécute la méthode "displayArray" de TArray
-                'isSmaller', 'displayArray'
-            ]
-        ]);
-    curr++; // curr passe à 0.
-    algorithm.innerHTML = `<pre>${logs[0][2]}</pre>`; // affiche le code de log[0] à droite de l'écran
-  }
-  ...
+
+        /* blacklist : aucune fonction n'est blacklistée */
+        []
+    ).startObserver(); // Lancement immédiat de l'injection
+```
+#### 1.2.1.2. run()
+La fonction run, ou toute autre fonction du même usage, doit être utilisée pour retarder l'exécution de l'algorithme à observer. Ceci est dû au fait que le script à observer (specialist.js) doit déjà être chargé en mémoire pour qu'observer.js puisse injecter les fonctions. Une fois les fonctions injectées, le script peut être exécuté normalement.
+```HTML
+<!-- Exemple d'ordre valide des appels de scripts -->
+
+<!-- Chargement de l'observer -->
+<script src="observer.js"></script>
+
+<!-- Chargement du script -->
+<script src="scriptAInjecter.js"></script>
+
+<!-- Instanciation d'Observer (paramètres omis) et lancement de l'algorithme à observer -->
+<script>
+    new Observer(...).startObserver();
+    run();
+</script>
+```
+```js
+/* scriptAInjecter.js */
+function run(){
+  let x = 30, y = 20;
+  PGCD(x,y)
 }
 ```
-L'affichage est ensuite actualisé à chaque lancement de la fonction.
-## 4. Todo
-✅ Présentation<br>
-✅ Documentation<br>
-⬜ Ajout de structures de données supplémentaires<br>
-⬜ Tests supplémentaires
-### 4.1 Optionnel
-⬜ Gestion d'algorithmes asynchrones (fetch(), setTimeout(), ...)<br>
+### Teacher.js
