@@ -17,6 +17,13 @@ AlgObserver permet d'augmenter des fonctions JavaScript, built-in ou non, avec d
         - [1.2.1.1.6. Exemple complet d'instanciation d'Observer](#12116-exemple-complet-dinstanciation-dobserver)
       - [1.2.1.2. run()](#1212-run)
     - [Teacher.js](#teacherjs)
+      - [Variables globales](#variables-globales)
+      - [setText](#settext)
+      - [log](#log)
+      - [TItem](#titem)
+      - [updateObjects](#updateobjects)
+      - [display](#display)
+      - [play](#play)
 
 ## 1.1. Installation
 Aucune installation n'est requise, il suffit d'appeler l'[observer](Projet_Bachelor/observer.js) dans la page HTML contenant le code et d'appeler les fonctions suivantes.
@@ -33,7 +40,7 @@ Aucune installation n'est requise, il suffit d'appeler l'[observer](Projet_Bache
 >L'ordre d'appel des scripts est important car scriptACapturer doit être chargé pour qu'observer puisse augmenter ses fonctions.
 ## 1.2. Utilisation
 ### 1.2.1. Observer.js
-Observer.js est le point central d'AlgObserver car c'est lui qui permet l'injection des fonctions. Comme vu plus haut, plusieurs appels de fonctions doivent être effectués pour que le programme fonctionne.
+Observer.js est le point central d'AlgObserver car c'est lui qui permet l'injection des fonctions. Il peut fonctionner seul mais il a été créé avec l'idée d'être joint au programme Teacher.js (voir plus bas). Comme vu plus haut, plusieurs appels de fonctions doivent être effectués pour que le programme fonctionne.
 #### 1.2.1.1. new Observer(objects, namespaces, functions, blacklist).startObserver()
   
 Cet appel crée une nouvelle instance d'Observer et permet d'injecter les fonctions selon les critères passés en paramètres. Ceux-ci sont, dans l'ordre :
@@ -183,3 +190,21 @@ function run(){
 }
 ```
 ### Teacher.js
+Teacher.js permet, grâce à ses différentes fonctions, d'afficher de façon dynamique les données lues par l'Observer et a été créé dans ce but. En effet, bien qu'Observer n'ait pas besoin de Teacher pour fonctionner, l'utilisation jointe des outils permet d'ajouter une dimension pédagogique au code observé par le biai d'outils visuels. Ci-dessous sont expliquées les différentes méthodes implémentées par défaut dans le Teacher, ainsi qu'une explication sur la façon d'ajouter de nouveaux outils. Dans sa conception, Teacher est fait pour être modifié et adapté aux besoins de l'utilisateur mais il fournit une structure de base qui pourra être agrémentée de nouvelles fonctionnalités ou servir de base pour un script personnalisé similaire.
+#### Variables globales
+Teacher définit un certain nombre de variables dans ses premières lignes. Celles-ci permettent un stockage et un accès simples.
+```js
+var _logs = []; // stocke les journaux reçus dans la fonction log.
+var _curr = -1; // log actuellement affiché (par défaut -1 -> sert à l'initialisation d'autres variables)
+const _displayContainer = document.getElementById('display'); // container HTML où seront affichées les données
+const _algorithm = document.getElementById('algorithm'); // container HTML permettant d'afficher l'entièreté d'un script
+var _actionListeners = new Map(); // actions devant être exécutées avant l'appel d'une certaine fonction
+var _afterListeners = new Map(); // actions devant être exécutées après l'appel d'une certaine fonction
+var _fullcode = "" // string permettant de stocker le code d'un script
+```
+#### setText
+#### log
+#### TItem
+#### updateObjects
+#### display
+#### play
