@@ -16,14 +16,14 @@ AlgObserver permet d'augmenter des fonctions JavaScript, built-in ou non, avec d
         - [1.2.1.1.5. startObserver()](#12115-startobserver)
         - [1.2.1.1.6. Exemple complet d'instanciation d'Observer](#12116-exemple-complet-dinstanciation-dobserver)
       - [1.2.1.2. run()](#1212-run)
-    - [Teacher.js](#teacherjs)
-      - [Variables globales](#variables-globales)
-      - [setText](#settext)
-      - [log](#log)
-      - [TItem](#titem)
-      - [updateObjects](#updateobjects)
-      - [display](#display)
-      - [play](#play)
+    - [1.2.2. Teacher.js](#122-teacherjs)
+      - [1.2.2.1. Variables globales](#1221-variables-globales)
+      - [1.2.2.2. setText](#1222-settext)
+      - [1.2.2.3. log](#1223-log)
+      - [1.2.2.4. TItem](#1224-titem)
+      - [1.2.2.5. updateObjects](#1225-updateobjects)
+      - [1.2.2.6. display](#1226-display)
+      - [1.2.2.7. play](#1227-play)
 
 ## 1.1. Installation
 Aucune installation n'est requise, il suffit d'appeler l'[observer](Projet_Bachelor/observer.js) dans la page HTML contenant le code et d'appeler les fonctions suivantes.
@@ -189,9 +189,9 @@ function run(){
   PGCD(x,y)
 }
 ```
-### Teacher.js
+### 1.2.2. Teacher.js
 Teacher.js permet, grâce à ses différentes fonctions, d'afficher de façon dynamique les données lues par l'Observer et a été créé dans ce but. En effet, bien qu'Observer n'ait pas besoin de Teacher pour fonctionner, l'utilisation jointe des outils permet d'ajouter une dimension pédagogique au code observé par le biai d'outils visuels. Ci-dessous sont expliquées les différentes méthodes implémentées par défaut dans le Teacher, ainsi qu'une explication sur la façon d'ajouter de nouveaux outils. Dans sa conception, Teacher est fait pour être modifié et adapté aux besoins de l'utilisateur mais il fournit une structure de base qui pourra être agrémentée de nouvelles fonctionnalités ou servir de base pour un script personnalisé similaire.
-#### Variables globales
+#### 1.2.2.1. Variables globales
 Teacher définit un certain nombre de variables dans ses premières lignes. Celles-ci permettent un stockage et un accès simples.
 ```js
 var _logs = []; // stocke les journaux reçus dans la fonction log.
@@ -202,9 +202,9 @@ var _actionListeners = new Map(); // actions devant être exécutées avant l'ap
 var _afterListeners = new Map(); // actions devant être exécutées après l'appel d'une certaine fonction
 var _fullcode = "" // string permettant de stocker le code d'un script
 ```
-#### setText
-#### log
-#### TItem
-#### updateObjects
-#### display
-#### play
+#### 1.2.2.2. setText
+#### 1.2.2.3. log
+#### 1.2.2.4. TItem
+#### 1.2.2.5. updateObjects
+#### 1.2.2.6. display
+#### 1.2.2.7. play
