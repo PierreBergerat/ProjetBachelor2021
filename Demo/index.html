@@ -35,7 +35,7 @@
     <script src="specialist.js"></script>
     <script>
         new Observer(
-            [QueenPosition],
+            [],
             [globalThis],
             [
                 {
@@ -59,7 +59,8 @@
         ).startObserver();
         fetch('specialist.js').then(res => res.text()).then(data => Teacher.setText(data))
         run();
-        Teacher.display();</script>
+        Teacher.display();
+    </script>
 </body>
 
 </html>
