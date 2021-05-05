@@ -62,18 +62,6 @@ class TItem {
             _afterListeners.get(funcName)?.push([this, func]) || _afterListeners.set(funcName, [[this, func]]);
         }
     }
-
-    runBeforeFunction(beforeAction) {
-        for (let [funcName, func] of beforeAction) {
-            _actionListeners.get(funcName)?.push([this, func]) || _actionListeners.set(funcName, [[this, func]]);
-        }
-    }
-
-    runAfterFunction(afterAction) {
-        for (let [funcName, func] of afterAction) {
-            _afterListeners.get(funcName)?.push([this, func]) || _afterListeners.set(funcName, [[this, func]]);
-        }
-    }
 }
 
 /**
@@ -215,7 +203,7 @@ class Teacher {
                 _curr > 0 ? _curr -= 1 : _curr;
             }
         } else {// Init
-            /*new TArray([12, 345, 4, 546, 122, 84, 98, 64, 9, 1, 3223, 4891, 455, 23, 234, 213],
+            new TArray([12, 345, 4, 546, 122, 84, 98, 64, 9, 1, 3223, 4891, 455, 23, 234, 213],
                 'table',
                 [
                     [
@@ -239,7 +227,7 @@ class Teacher {
                     [
                         'swap', (that, log) => { that.updateArray(log[3]) }
                     ]
-                ]);*/
+                ]);
             _curr++;
         }
         Teacher.updateObjects(_curr, shouldGoForward);
