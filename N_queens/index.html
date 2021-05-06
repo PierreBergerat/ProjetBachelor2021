@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="#">
+    <link rel="stylesheet" href="style.css">
+    <title>Document</title>
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <div class="p-5">
+                    <button onclick="Teacher.display(false)">Précédent</button>
+                    <button onclick="Teacher.display(true)">Suivant</button>
+                    <button id="playButton" class="float-right" onclick="Teacher.play(this.id)">Jouer toute la
+                        séquence</button>
+                    <div id="table"></div>
+                    <div id="display"></div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="p-5">
+                    <div id="chessboard"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script src="teacher.js"></script>
+<script src="../observer.js"></script>
+<script src="specialist.js"></script>
+<script>
+    new Observer(
+        [QueenPosition],
+        [globalThis],
+        [
+            {
+                aspect: (...args) => { Teacher.log(args[0], args[1], args[2]) },
+                advice: "before"
+            },
+            {
+                aspect: (value) => {
+                    if (value != undefined) {
+                        Teacher.log(value)
+                    }
+                    else {
+                        Teacher.log("undefined")
+                    }
+                    return value
+                },
+                advice: "afterReturning"
+            }
+        ],
+        ["run"]
+    ).startObserver();
+    run();
+    Teacher.display();
+</script>
+
+</html>

@@ -1,0 +1,77 @@
+#algorithm * {
+    display: inline;
+}
+
+#display {
+    overflow-x: scroll;
+}
+
+#algorithm {
+    height: 80vh;
+    overflow: scroll;
+}
+
+#algorithm span {
+    background-color: yellow;
+}
+
+.table td {
+    text-align: center;
+    border: 1px solid black;
+}
+
+table td.selected {
+    background-color: cornflowerblue;
+}
+
+table td.selected-red {
+    background-color: crimson;
+}
+
+table {
+    table-layout: inherit;
+    word-wrap: break-word;
+    width: 100%;
+}
+
+table th, table td {
+    overflow: auto;
+}
+
+.p-5 {
+    padding: 3%;
+}
+
+.float-right {
+    float: right;
+}
+
+@media screen and (min-width: 1250px) {
+    .container {
+        padding: 1vh 5%;
+    }
+    .col {
+        float: left;
+        width: 50%;
+    }
+    .row:after {
+        content: "";
+        display: table;
+        clear: both;
+    }
+}
+
+.chessboard {
+    border-spacing: 0;
+    border-collapse: collapse;
+}
+
+.chessboard th {
+    padding: .5em;
+}
+
+.chessboard td {
+    border: 1px solid;
+    width: 50px;
+    height: 50px;
+}
