@@ -58,6 +58,9 @@ class Observer {
    */
   injectMethod(target, functions) {
     this.getObjectMethods(target).forEach(m => {
+      if (this.blacklist.includes(m)) {
+        return;
+      }
       for (let _function of functions) {
         this.augmentMethod(target, m, _function.aspect, _function.advice);
       }
