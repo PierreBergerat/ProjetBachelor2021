@@ -27,13 +27,13 @@ class Observer {
   }
 
   /**
-   * Augments a default method with another
+   * Augments a default function with another
    * @param {prototype} target - Object that possesses the to be replaced method
    * @param {Function} methodName - The method to replace
    * @param {Function} aspect - Function to add to the method
    * @param {"before"|"after"|"around"|"afterReturning"} advice - Where to add the method.
    */
-  augmentMethod(target, methodName, aspect, advice) {
+  augmentFunction(target, methodName, aspect, advice) {
     const originalCode = target[methodName];
     target[methodName] = (...args) => {
       if (["before", "around"].includes(advice)) {
@@ -49,6 +49,31 @@ class Observer {
       return returnedValue;
     }
   }
+
+  /**
+   * Augments a method with a function
+   * @param {prototype} target - Object that possesses the to be replaced method
+   * @param {Function} methodName - The method to replace
+   * @param {Function} aspect - Function to add to the method
+   * @param {"before"|"after"|"around"|"afterReturning"} advice - Where to add the method.
+   */
+  augmentMethod(target, methodName, aspect, advice) {
+    const originalCode = target[methodName];
+    target[methodName] = function () {
+      if (["before", "around"].includes(advice)) {
+        aspect.apply(target, [originalCode, methodName, [...arguments]]);
+      }
+      const returnedValue = originalCode.apply(this, [...arguments]);
+      if (["after", "around"].includes(advice)) {
+        aspect.apply(target, [...arguments]);
+      }
+      if ("afterReturning" == advice) {
+        return aspect.apply(target, [returnedValue]);
+      }
+      return returnedValue;
+    }
+  }
+
 
   /**
    * Injects a function into another
@@ -76,7 +101,7 @@ class Observer {
       var potentialFunction = namespaceObject[name];
       if (Object.prototype.toString.call(potentialFunction) === '[object Function]' && !this.blacklist.includes(potentialFunction.name)) {
         for (let _function of functions) {
-          this.augmentMethod(namespaceObject, name, _function.aspect, _function.advice)
+          this.augmentFunction(namespaceObject, name, _function.aspect, _function.advice)
         }
       }
     }
