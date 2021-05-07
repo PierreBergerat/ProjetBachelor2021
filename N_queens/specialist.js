@@ -1,15 +1,15 @@
-function leftDiagonal(queenPosition) {
-    return queenPosition.rowIndex - queenPosition.columnIndex;
-}
-
-function rightDiagonal(queenPosition) {
-    return queenPosition.rowIndex + queenPosition.columnIndex;
-}
-
 class QueenPosition {
     constructor(rowIndex, columnIndex) {
         this.rowIndex = rowIndex;
         this.columnIndex = columnIndex;
+    }
+
+    leftDiagonal() {
+        return this.rowIndex - this.columnIndex;
+    }
+
+    rightDiagonal() {
+        return this.rowIndex + this.columnIndex;
     }
     toString() {
         return `${this.rowIndex},${this.columnIndex}`;
@@ -25,8 +25,8 @@ function isSafe(queensPositions, rowIndex, columnIndex) {
             && (
                 newQueenPosition.columnIndex === currentQueenPosition.columnIndex
                 || newQueenPosition.rowIndex === currentQueenPosition.rowIndex
-                || leftDiagonal(newQueenPosition) === leftDiagonal(currentQueenPosition)
-                || rightDiagonal(newQueenPosition) === rightDiagonal(currentQueenPosition)
+                || newQueenPosition.leftDiagonal() === currentQueenPosition.leftDiagonal()
+                || newQueenPosition.rightDiagonal() === currentQueenPosition.rightDiagonal()
             )
         ) {
             return false;
