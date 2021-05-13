@@ -1,111 +1,55 @@
 class Observer {
   /**
    * Instanciates the observer
-   * @param {Array.<Object>} objects - Objects to be injected
-   * @param {Array.<Object>} namespaces - Namespaces to be injected
-   * @param {Array.<Object>} functions - Aspects that will be injected into the above parameters
-   * @param {Array.<String>} blacklist - Functions that won't be injected
+   * @param {Array.<Object>} objects Objects to be injected
+   * @param {Array.<Object>} namespaces Namespaces to be injected
+   * @param {Array.<Function>} functions Aspects that will be injected into the above parameters
+   * @param {Array.<String>} blacklist Functions that won't be injected
    */
   constructor(objects, namespaces, functions, blacklist) {
     this.objects = objects;
     this.namespaces = namespaces;
     this.functions = functions;
     this.blacklist = blacklist;
-    this.blacklist = new Array(...new Set([...this.blacklist, ...["toString", "setInterval", "setTimeout", "clearInterval", "fetch"]]))
-  }
-  /**
-   * Adapted version of https://flaviocopes.com/how-to-list-object-methods-javascript/
-   * Returns the methods of an object's prototype
-   * @param {prototype} prototype - the class prototype (passed via CLASSNAME.prototype) to target 
-   * @returns - all the methods presents in the prototype
-   */
-  getObjectMethods = (prototype) => {
-    let properties = new Set(), currentObj = prototype;
-    do {
-      Object.getOwnPropertyNames(currentObj).map(name => properties.add(name))
-    } while ((currentObj = Object.getPrototypeOf(currentObj)));
-    return [...properties.keys()].filter(key => typeof prototype[key] === 'function' && !["toString", "constructor"].includes(key));
+    this.blacklist = new Array(...new Set([...this.blacklist, ...["toString", "setInterval", "setTimeout", "clearInterval", "fetch"]])); // Automatically adds some items to the blacklist
   }
 
-  /**
-   * Augments a global function with another
-   * Based on the method injection example seen in "JavaScript The Definitive Guide Master the Worlds Most-Used Programming Language" by David Flanagan, O'Reilly Media, 2020, p.388
-   * @param {prototype} target - Object that possesses the to be replaced method
-   * @param {String} methodName - The method to replace
-   * @param {Function} aspect - Function to add to the method
-   * @param {"before"|"after"|"around"|"afterReturning"} advice - Where to add the method.
-   */
-  augmentFunction(target, methodName, aspect, advice) {
-    const original = target[methodName]; // Backups the original function for further use
-    target[methodName] = (...args) => { // Redefinition of the function as a new function that will run "original" at some point
-      if (["before", "around"].includes(advice)) {
-        aspect.apply(target, [original, methodName, args]); // Runs the aspect with "target" as the value of "this"
-      }
-      const returnedValue = original.apply(target, args); // Runs the original function and store its return value
-      if (["after", "around"].includes(advice)) {
-        aspect.apply(target, [original, methodName, args]);
-      }
-      if (advice === "afterReturning") {
-        return aspect.apply(target, [returnedValue]); // Runs the aspect with the returnedValue as parameter
-      }
-      return returnedValue;
-    }
-  }
-
+  // Based on the method injection example seen in "JavaScript The Definitive Guide Master the Worlds Most-Used Programming Language" by David Flanagan, O'Reilly Media, 2020, p.388
   /**
    * Augments a method with a function
-   * @param {prototype} target - Object that possesses the to be replaced method
-   * @param {String} methodName - The method to replace
-   * @param {Function} aspect - Function to add to the method
-   * @param {"before"|"after"|"around"|"afterReturning"} advice - Where to add the method.
-   * 
-   * This function is a bit weirder than the previous one since "this" value must be relative to the instance of the object the method is executed by.
-   * Nevertheless, the code flow is the same as the one of augmentFunction
+   * @param {prototype} object Object that possesses the to be replaced method
+   * @param {String} functionName The method to replace
+   * @param {Function} aspect Function to add to the method
+   * @param {"before"|"after"|"around"|"afterReturning"} advice Where to add the method.
+   * @returns {Object}
    */
-  augmentMethod(target, methodName, aspect, advice) {
-    const originalCode = target[methodName];
-    target[methodName] = function () {
-      if (["before", "around"].includes(advice)) {
-        aspect.apply(target, [originalCode, methodName, [...arguments]]);
+  augment(object, functionName, aspect, advice) {
+    const original = object[functionName]; // Backup of the original code
+    object[functionName] = function () { // Redefinition of the function
+      if (["before", "around"].indexOf(advice) > -1) { // If advice is "before" or "around" 
+        aspect.apply(object, [original, functionName, [...arguments]]); // Runs the aspect with "object" as "this" value and passes informations such as the original code, the function name and the arguments the function is passed on
       }
-      const returnedValue = originalCode.apply(this, [...arguments]);
-      if (["after", "around"].includes(advice)) {
-        aspect.apply(target, [originalCode, methodName, [...arguments]]);
+      const returnValue = original.apply(this, [...arguments]); // Stores the return value for the original code
+      if (["after", "around"].indexOf(advice) > -1) {
+        aspect.apply(object, [original, functionName, [...arguments]]); // Same as above
       }
-      if ("afterReturning" == advice) {
-        return aspect.apply(target, [returnedValue]);
+      if (advice === "afterReturning") { // In the case of "afterReturning", the value that will be returned by the injected function needs to be defined in the aspect
+        return aspect.apply(object, [returnValue]);
       }
-      return returnedValue;
+      return returnValue; // If the advice is not "afterReturning", the function will return its original value
     }
-  }
-
-
-  /**
-   * Injects a function into another
-   * @param {prototype} target - Object that possesses the to be replaced method
-   * @param {Function} aspect - Function to add to the method
-   * @param {"before"|"after"|"around"|"afterReturning"} advice - Where to add the method
-   */
-  injectObject(target, functions) {
-    this.getObjectMethods(target).forEach(m => {
-      if (this.blacklist.includes(m)) {
-        return;
-      }
-      for (let _function of functions) {
-        this.augmentMethod(target, m, _function.aspect, _function.advice);
-      }
-    })
   }
 
   /**
    * Injects every method of a namespace
-   * @param {namespaceObject} namespace - The namespaceObject whose functions will be augmented
+   * @param {Object} object The namespace whose functions will be augmented
+   * @param {Array.<Function>} functions Functions to be injected 
    */
-  injectNamespace(namespace, functions) {
-    for (var name in namespace) {
-      if (Object.prototype.toString.call(namespace[name]) === '[object Function]' && !this.blacklist.includes(namespace[name].name)) {
+  injectObject(object, functions) {
+    for (var name in object) {
+      if (Object.prototype.toString.call(object[name]) === '[object Function]' && this.blacklist.indexOf(object[name].name) === -1) {
         for (let _function of functions) {
-          this.augmentFunction(namespace, name, _function.aspect, _function.advice)
+          this.augment(object, name, _function.aspect, _function.advice)
         }
       }
     }
@@ -119,7 +63,7 @@ class Observer {
       this.injectObject(_object.prototype, this.functions)
     }
     for (let _namespace of this.namespaces) {
-      this.injectNamespace(_namespace, this.functions)
+      this.injectObject(_namespace, this.functions)
     }
   }
 }
