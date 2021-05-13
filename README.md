@@ -1,5 +1,5 @@
 # AlgObserver
-[![JavaScript](https://img.shields.io/badge/JavaScript-ES2016+-blue?style=?style=plastic&logo=javascript&logoColor=F7DF1E)](https://github.com/PierreBergerat/ProjetBachelor2021) [![HTML](https://img.shields.io/badge/HTML-5-blue?style=?style=plastic&logo=html5)](https://github.com/PierreBergerat/ProjetBachelor2021)
+[![JavaScript](https://img.shields.io/badge/JavaScript-ES6/ES2016+-blue?style=?style=plastic&logo=javascript&logoColor=F7DF1E)](https://github.com/PierreBergerat/ProjetBachelor2021) [![HTML](https://img.shields.io/badge/HTML-5-blue?style=?style=plastic&logo=html5)](https://github.com/PierreBergerat/ProjetBachelor2021)
 
 AlgObserver permet d'augmenter des fonctions JavaScript, built-in ou non, avec d'autres fonctions définies par l'utilisateur. Dans l'exemple fourni, l'augmentation des fonctions permet l'ajout d'un outil de journalisation à chacune des fonctions injectées, et autorise ainsi le parcours rétrospectif de ces dernières afin de mieux comprendre le fonctionnement du code.
 
