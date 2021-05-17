@@ -6,97 +6,6 @@ var _afterListeners = new Map();
 var _fullcode = ""
 var _currentSolution = 1
 
-class Utils {
-    /**
-     * Returns the index of the first element of the subarray in array
-     * @param {Array} array - Array potentially containing subarray
-     * @param {Array} subarray - Array that will be look for in array
-     * @returns The index of the first element of subarray in array, or -1 if subarray not found.
-     */
-    static findSubArray(array, subarray) {
-        var i = 0, sl = subarray.length, l = array.length + 1 - sl;
-        loop: for (; i < l; i++) { // "loop:" is a label that allows us to jump out of the nested loop
-            for (var j = 0; j < sl; j++) {
-                if (array[i + j] !== subarray[j]) {
-                    continue loop;
-                }
-            }
-            return i;
-        }
-        return -1;
-    }
-
-    /**
-     * Returns a deep copy of o. Therefore, the returned object won't have any references to o.
-     * @param {Object} o - The object to copy
-     * @returns a deep copy of o
-     */
-    static deepCopy(o) {
-        return JSON.parse(JSON.stringify(o));
-    }
-}
-
-/**
- * Is used to implement listeners in any classes extending TItem.
- */
-class TItem {
-    constructor(before, after) {
-        this.setBeforeFunction(before);
-        this.setAfterFunction(after);
-    }
-
-    setBeforeFunction(beforeAction) {
-        if (!beforeAction) {
-            return;
-        }
-        for (let [funcName, func] of beforeAction) {// Adds / Appends an array of form [object, function] to actionListeners
-            _actionListeners.get(funcName)?.push([this, func]) || _actionListeners.set(funcName, [[this, func]]);
-        }
-    }
-
-    setAfterFunction(afterAction) {
-        if (!afterAction) {
-            return;
-        }
-        for (let [funcName, func] of afterAction) {
-            _afterListeners.get(funcName)?.push([this, func]) || _afterListeners.set(funcName, [[this, func]]);
-        }
-    }
-}
-
-/**
- * 
- */
-class TChessboard extends TItem {
-    constructor(size, container, beforelisteners, afterlisteners) {
-        super(beforelisteners, afterlisteners);
-        this.chessboard = document.createElement('table');
-        this.chessboard.classList.add('chessboard');
-        this.chessboard.style.width = `${size * 50}px`;
-        this.chessboard.style.float = `right`;
-        for (let i = 0; i < size; i++) {
-            let row = document.createElement('tr')
-            for (let j = 0; j < size; j++) {
-                let cell = document.createElement('td');
-                row.appendChild(cell)
-            }
-            this.chessboard.appendChild(row)
-        }
-        document.getElementById(container).appendChild(this.chessboard);
-    }
-    select(x, y, color) {
-        this.chessboard.children[y].children[x].style.backgroundColor = `${color}`;
-    }
-
-    deselect() {
-        for (let cols of this.chessboard.children) {
-            for (let cells of cols.children) {
-                cells.style.backgroundColor = `white`;
-            }
-        }
-    }
-}
-
 class Teacher {
 
     /**
@@ -156,7 +65,8 @@ class Teacher {
                 _curr > 0 ? _curr -= 1 : _curr;
             }
         } else {// Init
-            new TChessboard(
+            new TArray(
+                4,
                 4,
                 'chessboard',
                 [
@@ -187,7 +97,8 @@ class Teacher {
                             }
                         }
                     ]
-                ])
+                ],
+                ["chessboard"])
             _curr++;
         }
         Teacher.updateObjects(_curr, shouldGoForward);

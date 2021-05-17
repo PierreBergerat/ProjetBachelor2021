@@ -42,6 +42,10 @@ table th, table td {
     padding: 3%;
 }
 
+#chessboard {
+    float: right;
+}
+
 .float-right {
     float: right;
 }
